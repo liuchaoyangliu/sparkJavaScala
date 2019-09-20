@@ -13,13 +13,13 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.*;
 
 public class JavaWord2VecExample {
-
+    
     public static void main(String[] args) {
         SparkSession spark = SparkSession
                 .builder()
                 .appName("JavaWord2VecExample")
                 .getOrCreate();
-
+        
         // 输入数据：每行是一个句子或文档中的单词。
         List<Row> data = Arrays.asList(
                 RowFactory.create(Arrays.asList("Hi I heard about Spark".split(" "))),
@@ -30,24 +30,24 @@ public class JavaWord2VecExample {
                 new StructField("text", new ArrayType(DataTypes.StringType, true), false, Metadata.empty())
         });
         Dataset<Row> documentDF = spark.createDataFrame(data, schema);
-
+        
         // 学习从单词到向量的映射。
         Word2Vec word2Vec = new Word2Vec()
                 .setInputCol("text")
                 .setOutputCol("result")
                 .setVectorSize(3)
                 .setMinCount(0);
-
+        
         Word2VecModel model = word2Vec.fit(documentDF);
         Dataset<Row> result = model.transform(documentDF);
-
+        
         for (Row row : result.collectAsList()) {
             List<String> text = row.getList(0);
             Vector vector = (Vector) row.get(1);
             System.out.println("Text: " + text + " => \nVector: " + vector + "\n");
         }
-
+        
         spark.stop();
     }
-
+    
 }

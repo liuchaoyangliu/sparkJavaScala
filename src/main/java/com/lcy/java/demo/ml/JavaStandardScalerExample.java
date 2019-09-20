@@ -8,27 +8,27 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
 public class JavaStandardScalerExample {
-  public static void main(String[] args) {
-    SparkSession spark = SparkSession
-      .builder()
-      .appName("JavaStandardScalerExample")
-      .getOrCreate();
-
-    Dataset<Row> dataFrame =
-      spark.read().format("libsvm").load("data/mllib/sample_libsvm_data.txt");
-
-    StandardScaler scaler = new StandardScaler()
-      .setInputCol("features")
-      .setOutputCol("scaledFeatures")
-      .setWithStd(true)
-      .setWithMean(false);
-
-    // Compute summary statistics by fitting the StandardScaler
-    StandardScalerModel scalerModel = scaler.fit(dataFrame);
-
-    // Normalize each feature to have unit standard deviation.
-    Dataset<Row> scaledData = scalerModel.transform(dataFrame);
-    scaledData.show();
-    spark.stop();
-  }
+    public static void main(String[] args) {
+        SparkSession spark = SparkSession
+                .builder()
+                .appName("JavaStandardScalerExample")
+                .getOrCreate();
+        
+        Dataset<Row> dataFrame =
+                spark.read().format("libsvm").load("data/mllib/sample_libsvm_data.txt");
+        
+        StandardScaler scaler = new StandardScaler()
+                .setInputCol("features")
+                .setOutputCol("scaledFeatures")
+                .setWithStd(true)
+                .setWithMean(false);
+        
+        // Compute summary statistics by fitting the StandardScaler
+        StandardScalerModel scalerModel = scaler.fit(dataFrame);
+        
+        // Normalize each feature to have unit standard deviation.
+        Dataset<Row> scaledData = scalerModel.transform(dataFrame);
+        scaledData.show();
+        spark.stop();
+    }
 }

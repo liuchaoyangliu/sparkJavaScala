@@ -17,37 +17,37 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
 public class JavaChiSqSelectorExample {
-  public static void main(String[] args) {
-    SparkSession spark = SparkSession
-      .builder()
-      .appName("JavaChiSqSelectorExample")
-      .getOrCreate();
-
-    List<Row> data = Arrays.asList(
-      RowFactory.create(7, Vectors.dense(0.0, 0.0, 18.0, 1.0), 1.0),
-      RowFactory.create(8, Vectors.dense(0.0, 1.0, 12.0, 0.0), 0.0),
-      RowFactory.create(9, Vectors.dense(1.0, 0.0, 15.0, 0.1), 0.0)
-    );
-    StructType schema = new StructType(new StructField[]{
-      new StructField("id", DataTypes.IntegerType, false, Metadata.empty()),
-      new StructField("features", new VectorUDT(), false, Metadata.empty()),
-      new StructField("clicked", DataTypes.DoubleType, false, Metadata.empty())
-    });
-
-    Dataset<Row> df = spark.createDataFrame(data, schema);
-
-    ChiSqSelector selector = new ChiSqSelector()
-      .setNumTopFeatures(1)
-      .setFeaturesCol("features")
-      .setLabelCol("clicked")
-      .setOutputCol("selectedFeatures");
-
-    Dataset<Row> result = selector.fit(df).transform(df);
-
-    System.out.println("ChiSqSelector output with top " + selector.getNumTopFeatures()
-        + " features selected");
-    result.show();
-
-    spark.stop();
-  }
+    public static void main(String[] args) {
+        SparkSession spark = SparkSession
+                .builder()
+                .appName("JavaChiSqSelectorExample")
+                .getOrCreate();
+        
+        List<Row> data = Arrays.asList(
+                RowFactory.create(7, Vectors.dense(0.0, 0.0, 18.0, 1.0), 1.0),
+                RowFactory.create(8, Vectors.dense(0.0, 1.0, 12.0, 0.0), 0.0),
+                RowFactory.create(9, Vectors.dense(1.0, 0.0, 15.0, 0.1), 0.0)
+        );
+        StructType schema = new StructType(new StructField[]{
+                new StructField("id", DataTypes.IntegerType, false, Metadata.empty()),
+                new StructField("features", new VectorUDT(), false, Metadata.empty()),
+                new StructField("clicked", DataTypes.DoubleType, false, Metadata.empty())
+        });
+        
+        Dataset<Row> df = spark.createDataFrame(data, schema);
+        
+        ChiSqSelector selector = new ChiSqSelector()
+                .setNumTopFeatures(1)
+                .setFeaturesCol("features")
+                .setLabelCol("clicked")
+                .setOutputCol("selectedFeatures");
+        
+        Dataset<Row> result = selector.fit(df).transform(df);
+        
+        System.out.println("ChiSqSelector output with top " + selector.getNumTopFeatures()
+                + " features selected");
+        result.show();
+        
+        spark.stop();
+    }
 }

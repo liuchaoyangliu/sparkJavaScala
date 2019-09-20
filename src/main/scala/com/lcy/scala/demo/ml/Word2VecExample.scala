@@ -13,17 +13,17 @@ import org.apache.spark.sql.SparkSession
 
 
 object Word2VecExample {
-    
+
     def main(args: Array[String]) {
-        
+
         val spark = SparkSession
                 .builder
                 .appName("Word2Vec example")
                 .master("local[*]")
                 .getOrCreate()
-        
+
         spark.sparkContext.setLogLevel("ERROR")
-        
+
         // 输入数据：每行是一个句子或文档中的单词。
         //首先用一组文档，其中一个词语序列代表一个文档。对于每一个文档，我们将其转换为一个特征向量。
         //此特征向量可以被传递到一个学习算法。
@@ -33,7 +33,7 @@ object Word2VecExample {
             "Logistic regression models are neat".split(" ")
         ).map(Tuple1.apply))
                 .toDF("text")
-        
+
         // 学习从单词到向量的映射。
         val word2Vec = new Word2Vec()
                 .setInputCol("text")
@@ -43,15 +43,15 @@ object Word2VecExample {
                 //令牌必须看起来包含在word2vec模型的词汇表中的最小次数。
                 .setMinCount(0)
         val model = word2Vec.fit(documentDF)
-        
+
         val result = model.transform(documentDF)
         result.collect().foreach {
             case Row(text: Seq[_], features: Vector) =>
                 println(s"Text: [${text.mkString(", ")}] => \nVector: $features\n")
         }
-        
+
         spark.stop()
-        
+
     }
-    
+
 }
