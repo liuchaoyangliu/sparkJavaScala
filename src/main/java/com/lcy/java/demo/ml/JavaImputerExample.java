@@ -13,17 +13,16 @@ import org.apache.spark.sql.types.*;
 
 import static org.apache.spark.sql.types.DataTypes.*;
 
-/**
- * An example demonstrating Imputer.
- * Run with:
- * bin/run-example ml.JavaImputerExample
- */
 public class JavaImputerExample {
+    
     public static void main(String[] args) {
+        
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaImputerExample")
+                .appName("JavaImputer")
+                .master("local")
                 .getOrCreate();
+        spark.sparkContext().setLogLevel("ERROR");
         
         List<Row> data = Arrays.asList(
                 RowFactory.create(1.0, Double.NaN),
@@ -46,5 +45,7 @@ public class JavaImputerExample {
         model.transform(df).show();
         
         spark.stop();
+        
     }
+    
 }

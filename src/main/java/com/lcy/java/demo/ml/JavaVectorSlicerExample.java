@@ -1,7 +1,5 @@
 package com.lcy.java.demo.ml;
 
-import org.apache.spark.sql.SparkSession;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,14 +11,19 @@ import org.apache.spark.ml.linalg.Vectors;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.*;
 
 public class JavaVectorSlicerExample {
+    
     public static void main(String[] args) {
+        
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaVectorSlicerExample")
+                .appName("JavaVectorSlicer")
+                .master("local")
                 .getOrCreate();
+        spark.sparkContext().setLogLevel("ERROR");
         
         Attribute[] attrs = {
                 NumericAttribute.defaultAttr().withName("f1"),
@@ -38,15 +41,20 @@ public class JavaVectorSlicerExample {
                 spark.createDataFrame(data, (new StructType()).add(group.toStructField()));
         
         VectorSlicer vectorSlicer = new VectorSlicer()
-                .setInputCol("userFeatures").setOutputCol("features");
+                .setInputCol("userFeatures")
+                .setOutputCol("features");
         
-        vectorSlicer.setIndices(new int[]{1}).setNames(new String[]{"f3"});
-        // or slicer.setIndices(new int[]{1, 2}), or slicer.setNames(new String[]{"f2", "f3"})
+        vectorSlicer.setIndices(new int[]{1})
+                .setNames(new String[]{"f3"});
+        // or slicer.setIndices(new int[]{1, 2}),
+        // or slicer.setNames(new String[]{"f2", "f3"})
         
         Dataset<Row> output = vectorSlicer.transform(dataset);
         output.show(false);
         
         spark.stop();
+        
     }
+    
 }
 

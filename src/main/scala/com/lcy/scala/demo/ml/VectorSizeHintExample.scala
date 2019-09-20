@@ -5,11 +5,15 @@ import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.SparkSession
 
 object VectorSizeHintExample {
+
     def main(args: Array[String]): Unit = {
+
         val spark = SparkSession
                 .builder
-                .appName("VectorSizeHintExample")
+                .appName("VectorSizeHint")
+                .master("local")
                 .getOrCreate()
+        spark.sparkContext.setLogLevel("ERROR")
 
         val dataset = spark.createDataFrame(
             Seq(
@@ -23,18 +27,20 @@ object VectorSizeHintExample {
                 .setSize(3)
 
         val datasetWithSize = sizeHint.transform(dataset)
-        println("Rows where 'userFeatures' is not the right size are filtered out")
+        println("过滤掉'userFeatures'不正确大小的行")
         datasetWithSize.show(false)
 
         val assembler = new VectorAssembler()
                 .setInputCols(Array("hour", "mobile", "userFeatures"))
                 .setOutputCol("features")
 
-        // This dataframe can be used by downstream transformers as before
+        // 这个数据帧可以像以前一样由下游变压器使用
         val output = assembler.transform(datasetWithSize)
-        println("Assembled columns 'hour', 'mobile', 'userFeatures' to vector column 'features'")
-        output.select("features", "clicked").show(false)
-
+        println("汇总列'小时'，'移动'，'userFeatures'到矢量列'功能'")
+//        output.select("features", "clicked").show(false)
+        output.show(false)
         spark.stop()
+
     }
+
 }

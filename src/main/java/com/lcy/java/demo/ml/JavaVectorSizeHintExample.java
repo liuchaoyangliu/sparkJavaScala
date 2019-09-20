@@ -17,11 +17,15 @@ import org.apache.spark.sql.types.StructType;
 import static org.apache.spark.sql.types.DataTypes.*;
 
 public class JavaVectorSizeHintExample {
+    
     public static void main(String[] args) {
+        
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaVectorSizeHintExample")
+                .appName("JavaVectorSizeHint")
+                .master("local")
                 .getOrCreate();
+        spark.sparkContext().setLogLevel("ERROR");
         
         StructType schema = createStructType(new StructField[]{
                 createStructField("id", IntegerType, false),
@@ -40,20 +44,22 @@ public class JavaVectorSizeHintExample {
                 .setSize(3);
         
         Dataset<Row> datasetWithSize = sizeHint.transform(dataset);
-        System.out.println("Rows where 'userFeatures' is not the right size are filtered out");
+        System.out.println("过滤掉'userFeatures'不正确大小的行");
         datasetWithSize.show(false);
         
         VectorAssembler assembler = new VectorAssembler()
                 .setInputCols(new String[]{"hour", "mobile", "userFeatures"})
                 .setOutputCol("features");
         
-        // This dataframe can be used by downstream transformers as before
+        // 这个数据帧可以像以前一样由下游变压器使用
         Dataset<Row> output = assembler.transform(datasetWithSize);
-        System.out.println("Assembled columns 'hour', 'mobile', 'userFeatures' to vector column " +
-                "'features'");
-        output.select("features", "clicked").show(false);
+        System.out.println("汇总列'小时'，'移动'，'userFeatures'到矢量列'功能'");
+//        output.select("features", "clicked").show(false);
         
+        output.show(false);
         spark.stop();
+        
     }
+    
 }
 

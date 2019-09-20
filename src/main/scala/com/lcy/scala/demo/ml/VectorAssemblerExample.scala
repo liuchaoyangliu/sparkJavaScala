@@ -5,11 +5,15 @@ import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.SparkSession
 
 object VectorAssemblerExample {
+
     def main(args: Array[String]): Unit = {
+
         val spark = SparkSession
                 .builder
-                .appName("VectorAssemblerExample")
+                .appName("VectorAssembler")
+                .master("local")
                 .getOrCreate()
+        spark.sparkContext.setLogLevel("ERROR")
 
         val dataset = spark.createDataFrame(
             Seq((0, 18, 1.0, Vectors.dense(0.0, 10.0, 0.5), 1.0))
@@ -20,9 +24,12 @@ object VectorAssemblerExample {
                 .setOutputCol("features")
 
         val output = assembler.transform(dataset)
-        println("Assembled columns 'hour', 'mobile', 'userFeatures' to vector column 'features'")
+        println("汇总列'小时'，'移动'，'userFeatures'到矢量列'功能'")
         output.select("features", "clicked").show(false)
 
+        output.show(false)
         spark.stop()
+
     }
+
 }

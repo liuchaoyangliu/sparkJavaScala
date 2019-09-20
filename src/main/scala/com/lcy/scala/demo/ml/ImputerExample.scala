@@ -3,17 +3,15 @@ package com.lcy.scala.demo.ml
 import org.apache.spark.ml.feature.Imputer
 import org.apache.spark.sql.SparkSession
 
-/**
- * An example demonstrating Imputer.
- * Run with:
- * bin/run-example ml.ImputerExample
- */
 object ImputerExample {
 
     def main(args: Array[String]): Unit = {
+
         val spark = SparkSession.builder
-                .appName("ImputerExample")
+                .appName("Imputer")
+                .master("local")
                 .getOrCreate()
+        spark.sparkContext.setLogLevel("ERROR")
 
         val df = spark.createDataFrame(Seq(
             (1.0, Double.NaN),
@@ -26,10 +24,13 @@ object ImputerExample {
         val imputer = new Imputer()
                 .setInputCols(Array("a", "b"))
                 .setOutputCols(Array("out_a", "out_b"))
+//                .setMissingValue(0.0)
 
         val model = imputer.fit(df)
         model.transform(df).show()
 
         spark.stop()
+
     }
+
 }

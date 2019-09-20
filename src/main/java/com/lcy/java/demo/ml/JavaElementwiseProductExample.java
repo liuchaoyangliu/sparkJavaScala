@@ -18,13 +18,17 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
 public class JavaElementwiseProductExample {
+    
     public static void main(String[] args) {
+        
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaElementwiseProductExample")
+                .appName("JavaElementwiseProduct")
+                .master("local")
                 .getOrCreate();
+        spark.sparkContext().setLogLevel("ERROR");
         
-        // Create some vector data; also works for sparse vectors
+        // 创建一些矢量数据;也适用于稀疏矢量
         List<Row> data = Arrays.asList(
                 RowFactory.create("a", Vectors.dense(1.0, 2.0, 3.0)),
                 RowFactory.create("b", Vectors.dense(4.0, 5.0, 6.0))
@@ -45,8 +49,10 @@ public class JavaElementwiseProductExample {
                 .setInputCol("vector")
                 .setOutputCol("transformedVector");
         
-        // Batch transform the vectors to create new column:
+        // 批量转换矢量以创建新列：
         transformer.transform(dataFrame).show();
         spark.stop();
+        
     }
+    
 }
