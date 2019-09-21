@@ -1,7 +1,5 @@
 package com.lcy.java.demo.ml;
 
-import org.apache.spark.sql.SparkSession;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,17 +7,22 @@ import org.apache.spark.ml.feature.RFormula;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
 import static org.apache.spark.sql.types.DataTypes.*;
 
 public class JavaRFormulaExample {
+    
     public static void main(String[] args) {
+        
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaRFormulaExample")
+                .appName("JavaRFormula")
+                .master("local")
                 .getOrCreate();
+        spark.sparkContext().setLogLevel("ERROR");
         
         StructType schema = createStructType(new StructField[]{
                 createStructField("id", IntegerType, false),
@@ -40,8 +43,11 @@ public class JavaRFormulaExample {
                 .setFeaturesCol("features")
                 .setLabelCol("label");
         Dataset<Row> output = formula.fit(dataset).transform(dataset);
-        output.select("features", "label").show();
+//        output.select("features", "label").show();
+        output.show(false);
         spark.stop();
+        
     }
+    
 }
 

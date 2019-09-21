@@ -1,7 +1,5 @@
 package com.lcy.java.demo.ml;
 
-import org.apache.spark.sql.SparkSession;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,6 +11,7 @@ import org.apache.spark.ml.linalg.Vectors;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
@@ -20,17 +19,16 @@ import org.apache.spark.sql.types.StructType;
 
 import static org.apache.spark.sql.functions.col;
 
-/**
- * An example demonstrating MinHashLSH.
- * Run with:
- * bin/run-example ml.JavaMinHashLSHExample
- */
 public class JavaMinHashLSHExample {
+    
     public static void main(String[] args) {
+        
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaMinHashLSHExample")
+                .appName("JavaMinHashLSH")
+                .master("local")
                 .getOrCreate();
+        spark.sparkContext().setLogLevel("ERROR");
         
         List<Row> dataA = Arrays.asList(
                 RowFactory.create(0, Vectors.sparse(6, new int[]{0, 1, 2}, new double[]{1.0, 1.0, 1.0})),
@@ -62,29 +60,33 @@ public class JavaMinHashLSHExample {
         
         MinHashLSHModel model = mh.fit(dfA);
         
-        // Feature Transformation
-        System.out.println("The hashed dataset where hashed values are stored in the column 'hashes':");
-        model.transform(dfA).show();
+        //特征转换
+        System.out.println("散列值存储在“散列”列中的散列数据集：");
+        model.transform(dfA).show(false);
         
-        // Compute the locality sensitive hashes for the input rows, then perform approximate
-        // similarity join.
-        // We could avoid computing hashes by passing in the already-transformed dataset, e.g.
-        // `model.approxSimilarityJoin(transformedA, transformedB, 0.6)`
-        System.out.println("Approximately joining dfA and dfB on Jaccard distance smaller than 0.6:");
+       //计算输入行的位置敏感哈希，然后执行近似
+        //相似连接。
+        //我们可以通过传入已转换的数据集来避免计算哈希，例如
+        //`model.approxSimilarityJoin（transformedA，transformedB，0.6）`
+        System.out.println("在Jaccard距离小于0.6的情况下大约加入dfA和dfB：");
         model.approxSimilarityJoin(dfA, dfB, 0.6, "JaccardDistance")
-                .select(col("datasetA.id").alias("idA"),
+                .select(
+                        col("datasetA.id").alias("idA"),
                         col("datasetB.id").alias("idB"),
-                        col("JaccardDistance")).show();
+                        col("JaccardDistance")
+                ).show(false);
         
-        // Compute the locality sensitive hashes for the input rows, then perform approximate nearest
-        // neighbor search.
-        // We could avoid computing hashes by passing in the already-transformed dataset, e.g.
-        // `model.approxNearestNeighbors(transformedA, key, 2)`
-        // It may return less than 2 rows when not enough approximate near-neighbor candidates are
-        // found.
-        System.out.println("Approximately searching dfA for 2 nearest neighbors of the key:");
-        model.approxNearestNeighbors(dfA, key, 2).show();
+        //计算输入行的位置敏感哈希，然后执行近似最近
+        //邻居搜索。
+        //我们可以通过传入已转换的数据集来避免计算哈希，例如
+        //`model.approxNearestNeighbors（transformedA，key，2）`
+        //如果没有足够的近似邻居候选者，则可能返回少于2行
+        //找到。
+        System.out.println("大约在dfA中搜索密钥的2个最近邻居：");
+        model.approxNearestNeighbors(dfA, key, 2).show(false);
         
         spark.stop();
+        
     }
+    
 }

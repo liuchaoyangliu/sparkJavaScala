@@ -1,27 +1,30 @@
 package com.lcy.java.demo.ml;
 
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.SparkSession;
-
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.spark.ml.feature.ChiSqSelector;
 import org.apache.spark.ml.linalg.VectorUDT;
 import org.apache.spark.ml.linalg.Vectors;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
 public class JavaChiSqSelectorExample {
+    
     public static void main(String[] args) {
+        
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaChiSqSelectorExample")
+                .appName("JavaChiSqSelector")
+                .master("local")
                 .getOrCreate();
+        spark.sparkContext().setLogLevel("ERROR");
         
         List<Row> data = Arrays.asList(
                 RowFactory.create(7, Vectors.dense(0.0, 0.0, 18.0, 1.0), 1.0),
@@ -44,10 +47,12 @@ public class JavaChiSqSelectorExample {
         
         Dataset<Row> result = selector.fit(df).transform(df);
         
-        System.out.println("ChiSqSelector output with top " + selector.getNumTopFeatures()
-                + " features selected");
+        System.out.println("带顶部的ChiSqSelector输出" + selector.getNumTopFeatures()
+                + " 选择的功能");
         result.show();
         
         spark.stop();
+        
     }
+    
 }

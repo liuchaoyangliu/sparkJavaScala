@@ -5,18 +5,16 @@ import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
 
-/**
- * An example demonstrating BucketedRandomProjectionLSH.
- * Run with:
- * bin/run-example ml.BucketedRandomProjectionLSHExample
- */
 object BucketedRandomProjectionLSHExample {
+
     def main(args: Array[String]): Unit = {
-        // Creates a SparkSession
+
         val spark = SparkSession
                 .builder
-                .appName("BucketedRandomProjectionLSHExample")
+                .appName("BucketedRandomProjectionLSH")
+                .master("local")
                 .getOrCreate()
+        spark.sparkContext.setLogLevel("ERROR")
 
         val dfA = spark.createDataFrame(Seq(
             (0, Vectors.dense(1.0, 1.0)),
@@ -42,27 +40,31 @@ object BucketedRandomProjectionLSHExample {
 
         val model = brp.fit(dfA)
 
-        // Feature Transformation
-        println("The hashed dataset where hashed values are stored in the column 'hashes':")
-        model.transform(dfA).show()
+        //特征转换
+        println("散列值存储在“散列”列中的散列数据集：")
+        model.transform(dfA).show(false)
 
-        // Compute the locality sensitive hashes for the input rows, then perform approximate
-        // similarity join.
-        // We could avoid computing hashes by passing in the already-transformed dataset, e.g.
-        // `model.approxSimilarityJoin(transformedA, transformedB, 1.5)`
-        println("Approximately joining dfA and dfB on Euclidean distance smaller than 1.5:")
+        //计算输入行的位置敏感哈希，然后执行近似
+        //相似连接。
+        //我们可以通过传入已转换的数据集来避免计算哈希，例如
+        //`model.approxSimilarityJoin（transformedA，transformedB，1.5）`
+        println("在小于1.5的欧氏距离上近似连接dfA和dfB：")
         model.approxSimilarityJoin(dfA, dfB, 1.5, "EuclideanDistance")
-                .select(col("datasetA.id").alias("idA"),
+                .select(
+                    col("datasetA.id").alias("idA"),
                     col("datasetB.id").alias("idB"),
-                    col("EuclideanDistance")).show()
+                    col("EuclideanDistance")
+                ).show(false)
 
-        // Compute the locality sensitive hashes for the input rows, then perform approximate nearest
-        // neighbor search.
-        // We could avoid computing hashes by passing in the already-transformed dataset, e.g.
-        // `model.approxNearestNeighbors(transformedA, key, 2)`
-        println("Approximately searching dfA for 2 nearest neighbors of the key:")
-        model.approxNearestNeighbors(dfA, key, 2).show()
+        //计算输入行的位置敏感哈希，然后执行近似最近
+        //邻居搜索。
+        //我们可以通过传入已转换的数据集来避免计算哈希，例如
+        //`model.approxNearestNeighbors（transformedA，key，2）`
+        println("大约在dfA中搜索密钥的2个最近邻居：")
+        model.approxNearestNeighbors(dfA, key, 2).show(false)
 
         spark.stop()
+
     }
+
 }
