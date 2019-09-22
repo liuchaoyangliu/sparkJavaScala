@@ -24,8 +24,7 @@ import java.util.List;
  */
 
 public class JavaPipelineExample {
-
-
+    
     @Test
     public void test1(String[] args) {
 
@@ -137,71 +136,5 @@ public class JavaPipelineExample {
 
         spark.stop();
     }
-
-
-    @Test
-    public void test3(String[] args) {
-
-        SparkSession spark = SparkSession
-                .builder()
-                .appName("pipeline")
-                .master("local[*]")
-                .getOrCreate();
-        spark.sparkContext().setLogLevel("ERROR");
-
-        StructType schema1 = new StructType(new StructField[]{
-                new StructField("id", DataTypes.LongType, false, Metadata.empty()),
-                new StructField("text", DataTypes.StringType, false, Metadata.empty()),
-                new StructField("label", DataTypes.DoubleType, false, Metadata.empty())
-        });
-
-        Dataset<Row> training =
-                spark.createDataFrame(Arrays.asList(
-                        RowFactory.create(0L, "a b c d e spark", 1.0),
-                        RowFactory.create(1L, "b d", 0.0),
-                        RowFactory.create(2L, "spark f g h", 1.0),
-                        RowFactory.create(3L, "hadoop mapreduce", 0.0)
-                ), schema1);
-
-        Tokenizer tokenizer = new Tokenizer()
-                .setInputCol("text")
-                .setOutputCol("words");
-
-        HashingTF hashingTF = new HashingTF()
-                .setNumFeatures(1000)
-                .setInputCol(tokenizer.getOutputCol())
-                .setOutputCol("features");
-
-        LogisticRegression lr = new LogisticRegression()
-                .setMaxIter(10)
-                .setRegParam(1.001);
-
-        Pipeline pipeline = new Pipeline()
-                .setStages(new PipelineStage[]{tokenizer, hashingTF, lr});
-
-        PipelineModel model = pipeline.fit(training);
-
-        StructType schema2 = new StructType(new StructField[]{
-                new StructField("id", DataTypes.LongType, false, Metadata.empty()),
-                new StructField("text", DataTypes.StringType, false, Metadata.empty())
-        });
-
-        Dataset<Row> test = spark.createDataFrame(Arrays.asList(
-                RowFactory.create(4L, "spark i j k"),
-                RowFactory.create(5L, "l m n"),
-                RowFactory.create(6L, "spark hadoop spark"),
-                RowFactory.create(7L, "apache hadoop")
-        ), schema2);
-
-        List<Row> rows = model
-                .transform(test)
-                .select("id", "text", "probability", "prediction")
-                .collectAsList();
-
-        for (Row r : rows) {
-            System.out.println(r.get(0) + "\n " + r.get(1) + "\n " + r.get(2) + "\n " + r.get(3));
-        }
-
-    }
-
+    
 }

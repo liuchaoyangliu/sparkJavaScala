@@ -10,49 +10,26 @@ import org.apache.spark.sql.SparkSession
 
 object ChiSquareTestExample {
 
-    //  def main(args: Array[String]): Unit = {
-    //
-    //    val spark = SparkSession
-    //      .builder
-    //      .appName("ChiSquare")
-    //      .master("local[*]")
-    //      .getOrCreate()
-    //    spark.sparkContext.setLogLevel("ERROR")
-    //    import spark.implicits._
-    //
-    //    val data = Seq(
-    //      (0.0, Vectors.dense(0.5, 10.0)),
-    //      (0.0, Vectors.dense(1.5, 20.0)),
-    //      (1.0, Vectors.dense(1.5, 30.0)),
-    //      (0.0, Vectors.dense(3.5, 30.0)),
-    //      (0.0, Vectors.dense(3.5, 40.0)),
-    //      (1.0, Vectors.dense(3.5, 40.0))
-    //    )
-    //
-    //    val df = data.toDF("label", "features")
-    //    val chi = ChiSquareTest.test(df, "features", "label").head
-    //
-    //    println(s"pValues = ${chi.getAs[Vector](0)}")
-    //    println(s"degreesOfFreedom ${chi.getSeq[Int](1).mkString("[", ",", "]")}")
-    //    println(s"statistics ${chi.getAs[Vector](2)}")
-    //
-    //    spark.stop()
-    //
-    //  }
-
-
     def main(args: Array[String]): Unit = {
 
         val spark = SparkSession
-                .builder()
-                .appName("chiSquareTest")
+                .builder
+                .appName("ChiSquare")
                 .master("local[*]")
                 .getOrCreate()
         spark.sparkContext.setLogLevel("ERROR")
-
         import spark.implicits._
 
         val data = Seq(
+            (0.0, Vectors.dense(0.5, 10.0)),
+            (0.0, Vectors.dense(1.5, 20.0)),
+            (1.0, Vectors.dense(1.5, 30.0)),
+            (0.0, Vectors.dense(3.5, 30.0)),
+            (0.0, Vectors.dense(3.5, 40.0)),
+            (1.0, Vectors.dense(3.5, 40.0))
+        )
+
+        val data2 = Seq(
             (1.0, Vectors.dense(1.0, 2.0)),
             (2.0, Vectors.dense(2.0, 3.0)),
             (3.0, Vectors.dense(3.0, 4.0)),
@@ -62,12 +39,13 @@ object ChiSquareTestExample {
             (7.0, Vectors.dense(7.0, 8.0))
         )
 
-        val df = data.toDF("label", "features")
-        val chi = ChiSquareTest.test(df, "features", "label").head()
 
-        println(s"pValues = ${chi.getAs[Vector](0)}")
-        println(s"degreesOfFreedom ${chi.getSeq[Int](1).mkString("[", ",", "]")}")
-        println(s"statistics ${chi.getAs[Vector](2)}")
+        val df = data2.toDF("label", "features")
+        val chi = ChiSquareTest.test(df, "features", "label").head
+
+        println(s"p值 = ${chi.getAs[Vector](0)}")
+        println(s"自由程度 ${chi.getSeq[Int](1).mkString("[", ",", "]")}")
+        println(s"统计 ${chi.getAs[Vector](2)}")
 
         spark.stop()
 

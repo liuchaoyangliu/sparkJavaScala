@@ -46,12 +46,14 @@ object MinHashLSHExample {
         //我们可以通过传入已转换的数据集来避免计算哈希，例如
         //`model.approxSimilarityJoin（transformedA，transformedB，0.6）`
         println("在Jaccard距离小于0.6的情况下大约加入dfA和dfB：")
+//        model.approxSimilarityJoin(dfA, dfB, 0.6, "JaccardDistance")
+//                .select(
+//                    col("datasetA.id").alias("idA"),
+//                    col("datasetB.id").alias("idB"),
+//                    col("JaccardDistance")
+//                ).show(false)
         model.approxSimilarityJoin(dfA, dfB, 0.6, "JaccardDistance")
-                .select(
-                    col("datasetA.id").alias("idA"),
-                    col("datasetB.id").alias("idB"),
-                    col("JaccardDistance")
-                ).show(false)
+                        .show(false)
 
         //计算输入行的位置敏感哈希，然后执行近似最近
         //邻居搜索。
