@@ -24,12 +24,10 @@ object VectorAssemblerExample {
                 .setOutputCol("features")
 
         val output = assembler.transform(dataset)
-        println("汇总列'小时'，'移动'，'userFeatures'到矢量列'功能'")
-        output.select("features", "clicked").show(false)
+        println("Assembled columns 'hour', 'mobile', 'userFeatures' to vector column 'features'")
+//        output.select("features", "clicked").show(false)
 
         output.show(false)
         spark.stop()
-
     }
-
 }

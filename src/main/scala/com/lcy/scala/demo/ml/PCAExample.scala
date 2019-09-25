@@ -15,7 +15,6 @@ import org.apache.spark.sql.SparkSession
  *
  */
 
-
 object PCAExample {
 
     def main(args: Array[String]): Unit = {
@@ -41,11 +40,11 @@ object PCAExample {
                 .setK(3)
                 .fit(df)
 
-        val result = pca.transform(df).select("pcaFeatures")
-        result.show(false)
+//        val result = pca.transform(df).select("pcaFeatures")
+//        result.show(false)
+        pca.transform(df).show(false)
 
         spark.stop()
 
     }
-
 }

@@ -16,7 +16,6 @@ import java.util.List;
 public class JavaSQLTransformerExample {
     
     public static void main(String[] args) {
-        
         SparkSession spark = SparkSession
                 .builder()
                 .appName("JavaSQLTransformer")
@@ -42,7 +41,5 @@ public class JavaSQLTransformerExample {
         sqlTrans.transform(df).show();
         
         spark.stop();
-        
     }
-    
 }

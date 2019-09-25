@@ -6,14 +6,6 @@ import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.StructType
 
-//import java.util.Arrays
-//
-//import org.apache.spark.ml.attribute.{Attribute, AttributeGroup, NumericAttribute}
-//import org.apache.spark.ml.feature.VectorSlicer
-//import org.apache.spark.ml.linalg.Vectors
-//import org.apache.spark.sql.{Row, SparkSession}
-//import org.apache.spark.sql.types.StructType
-
 /**
  *
  * VectorSlicer是一个变换器，它采用一个特征向量并输出一个新的特征向量与原始特征的子数组。
@@ -29,50 +21,9 @@ import org.apache.spark.sql.types.StructType
  *
  */
 
-
 object VectorSlicerExample {
 
-    //    def main(args: Array[String]): Unit = {
-    //
-    //        val spark = SparkSession
-    //                .builder
-    //                .appName("VectorSlicer")
-    //                .master("local")
-    //                .getOrCreate()
-    //        spark.sparkContext.setLogLevel("ERROR")
-    //
-    //        val data = Arrays.asList(
-    //            Row(Vectors.sparse(3, Seq((0, -2.0), (1, 2.3)))),
-    //            Row(Vectors.dense(-2.0, 2.3, 0.0))
-    //        )
-    //
-    //        val defaultAttr = NumericAttribute.defaultAttr
-    //        val attrs = Array("f1", "f2", "f3")
-    //                .map(defaultAttr.withName)
-    //        val attrGroup = new AttributeGroup("userFeatures", attrs.asInstanceOf[Array[Attribute]])
-    //
-    //        val dataset = spark
-    //                .createDataFrame(data, StructType(Array(attrGroup.toStructField())))
-    //
-    //        val slicer = new VectorSlicer()
-    //                .setInputCol("userFeatures")
-    //                .setOutputCol("features")
-    //
-    //        slicer.setIndices(Array(1))
-    //                .setNames(Array("f3"))
-    //        // or slicer.setIndices(Array(1, 2)),
-    //        // or slicer.setNames(Array("f2", "f3"))
-    //
-    //        val output = slicer.transform(dataset)
-    //        output.show(false)
-    //
-    //        spark.stop()
-    //
-    //    }
-
-
     def main(args: Array[String]): Unit = {
-
         val spark = SparkSession
                 .builder
                 .appName("VectorSlicer")
@@ -93,7 +44,6 @@ object VectorSlicerExample {
         val dataset = spark.createDataFrame(dataRDD, StructType(Array(attrGroup.toStructField())))
 
         print("原始特征：")
-//        dataset.take(1).foreach(println)
         dataset.take(1).foreach(println)
 
 
@@ -105,7 +55,7 @@ object VectorSlicerExample {
         //根据索引号，截取原始特征向量的第1列和第3列
         slicer.setIndices(Array(0, 2))
         println("output1: ")
-//        slicer.transform(dataset).select("userFeatures", "features").first()
+        //        slicer.transform(dataset).select("userFeatures", "features").first()
         slicer.transform(dataset).show(false)
 
         //根据字段名，截取原始特征向量的f2和f3
@@ -114,18 +64,19 @@ object VectorSlicerExample {
                 .setOutputCol("features")
         slicer.setNames(Array("f2", "f3"))
         println("output2: ")
-//        slicer.transform(dataset).select("userFeatures", "features").first()
+        //        slicer.transform(dataset).select("userFeatures", "features").first()
         slicer.transform(dataset).show(false)
 
 
         //索引号和字段名也可以组合使用，截取原始特征向量的第1列和f2
         slicer = new VectorSlicer().setInputCol("userFeatures").setOutputCol("features")
-        slicer.setIndices(Array(0)).setNames(Array("f2"))
+        slicer
+                .setIndices(Array(0))
+                .setNames(Array("f2"))
         println("output3: ")
-//        slicer.transform(dataset).select("userFeatures", "features").first()
+        //        slicer.transform(dataset).select("userFeatures", "features").first()
         slicer.transform(dataset).show(false)
 
+        spark.stop()
     }
-
-
 }

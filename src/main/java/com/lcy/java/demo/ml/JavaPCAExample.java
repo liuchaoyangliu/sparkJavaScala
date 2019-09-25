@@ -12,7 +12,6 @@ import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,8 +21,10 @@ public class JavaPCAExample {
         
         SparkSession spark = SparkSession
                 .builder()
-                .appName("JavaPCAExample")
+                .appName("JavaPCA")
+                .master("local")
                 .getOrCreate();
+        spark.sparkContext().setLogLevel("ERROR");
         
         List<Row> data = Arrays.asList(
                 RowFactory.create(Vectors.sparse(5, new int[]{1, 3}, new double[]{1.0, 7.0})),
@@ -43,11 +44,12 @@ public class JavaPCAExample {
                 .setK(3)
                 .fit(df);
         
-        Dataset<Row> result = pca.transform(df).select("pcaFeatures");
+//        Dataset<Row> result = pca.transform(df).select("pcaFeatures");
+//        result.show(false);
+        Dataset<Row> result = pca.transform(df);
         result.show(false);
+    
         spark.stop();
         
     }
-    
 }
-

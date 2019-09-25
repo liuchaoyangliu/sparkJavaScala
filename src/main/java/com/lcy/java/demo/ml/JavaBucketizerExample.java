@@ -50,6 +50,9 @@ public class JavaBucketizerExample {
         System.out.println("Bucketizer输出 " + (bucketizer.getSplits().length-1) + " 桶");
         bucketedData.show();
         
+        
+        
+        
         // 一次通过多列化。
         double[][] splitsArray = {
                 {Double.NEGATIVE_INFINITY, -0.5, 0.0, 0.5, Double.POSITIVE_INFINITY},
@@ -83,7 +86,5 @@ public class JavaBucketizerExample {
         bucketedData2.show();
         
         spark.stop();
-        
     }
-    
 }

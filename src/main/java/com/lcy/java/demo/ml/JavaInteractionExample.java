@@ -67,7 +67,5 @@ public class JavaInteractionExample {
         interacted.show(false);
         
         spark.stop();
-        
     }
-    
 }

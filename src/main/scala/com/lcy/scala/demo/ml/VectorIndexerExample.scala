@@ -19,6 +19,8 @@ object VectorIndexerExample {
                 .format("libsvm")
                 .load("file:\\D:\\sparkData\\sample_libsvm_data.txt")
 
+        data.show(false)
+
         val indexer = new VectorIndexer()
                 .setInputCol("features")
                 .setOutputCol("indexed")
@@ -35,37 +37,5 @@ object VectorIndexerExample {
         indexedData.show(false)
 
         spark.stop()
-
     }
-
-
-
-
-    //    def main(args: Array[String]): Unit = {
-    //
-    //        val spark = SparkSession
-    //                .builder()
-    //                .appName("vectorIndex")
-    //                .master("local")
-    //                .getOrCreate()
-    //        spark.sparkContext.setLogLevel("ERROR")
-    //
-    //        val data = spark
-    //                .read
-    //                .format("libsvm")
-    //                .load("file:\\D:\\sparkData\\sample_libsvm_data.txt")
-    //
-    //        val indexer = new VectorIndexer()
-    //                .setInputCol("features")
-    //                .setOutputCol("indexed")
-    //                .setMaxCategories(10)
-    //
-    //        val indexerIndex = indexer.fit(data)
-    //
-    //        indexerIndex.transform(data).show(false)
-    //
-    //        spark.stop()
-    //
-    //    }
-
 }

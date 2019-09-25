@@ -35,7 +35,6 @@ object BucketizerExample {
 
 
 
-
         val splitsArray = Array(
             Array(Double.NegativeInfinity, -0.5, 0.0, 0.5, Double.PositiveInfinity),
             Array(Double.NegativeInfinity, -0.3, 0.0, 0.3, Double.PositiveInfinity))
@@ -65,8 +64,5 @@ object BucketizerExample {
         bucketedData2.show()
 
         spark.stop()
-
     }
-
 }
-

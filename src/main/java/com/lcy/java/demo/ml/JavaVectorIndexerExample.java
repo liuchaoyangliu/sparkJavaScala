@@ -43,7 +43,5 @@ public class JavaVectorIndexerExample {
         indexedData.show(false);
 
         spark.stop();
-
     }
-  
 }

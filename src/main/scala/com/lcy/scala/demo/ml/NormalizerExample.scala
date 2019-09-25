@@ -28,17 +28,15 @@ object NormalizerExample {
                 .setP(1.0)
 
         val l1NormData = normalizer.transform(dataFrame)
-        println("Normalized using L^1 norm")
+        println("使用L ^ 1范数归一化")
         l1NormData.show()
 
         // 使用$ L ^ \ infty $ norm标准化每个Vector。
         val lInfNormData = normalizer
                 .transform(dataFrame, normalizer.p -> Double.PositiveInfinity)
-        println("Normalized using L^inf norm")
+        println("使用L ^ inf范数归一化")
         lInfNormData.show()
 
         spark.stop()
-
     }
-
 }

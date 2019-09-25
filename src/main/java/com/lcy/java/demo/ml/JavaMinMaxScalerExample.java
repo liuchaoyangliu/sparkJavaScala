@@ -43,10 +43,10 @@ public class JavaMinMaxScalerExample {
                 .setInputCol("features")
                 .setOutputCol("scaledFeatures");
         
-        // Compute summary statistics and generate MinMaxScalerModel
+        // 计算摘要统计信息并生成MinMaxScalerModel
         MinMaxScalerModel scalerModel = scaler.fit(dataFrame);
         
-        // rescale each feature to range [min, max].
+        // 将每个功能重新缩放到[最小，最大]范围。
         Dataset<Row> scaledData = scalerModel.transform(dataFrame);
         System.out.println("Features scaled to range: [" + scaler.getMin() + ", "
                 + scaler.getMax() + "]");

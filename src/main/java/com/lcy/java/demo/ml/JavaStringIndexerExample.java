@@ -68,7 +68,5 @@ public class JavaStringIndexerExample {
         indexer.fit(df).setHandleInvalid("keep").transform(df2).show();
         
         spark.stop();
-        
     }
-    
 }

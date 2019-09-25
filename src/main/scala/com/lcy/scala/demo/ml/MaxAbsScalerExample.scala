@@ -35,5 +35,4 @@ object MaxAbsScalerExample {
         spark.stop()
 
     }
-
 }

@@ -3,6 +3,11 @@ package com.lcy.scala.demo.ml
 import org.apache.spark.ml.feature.FeatureHasher
 import org.apache.spark.sql.SparkSession
 
+/**
+ * 特征哈希将一组分类或数字特征投影到指定维的特征向量中（通常大大小于原始特征空间的特征向量）。
+ * 这是通过使用哈希技巧 将特征映射到特征向量中的索引来完成的。
+ */
+
 object FeatureHasherExample {
 
     def main(args: Array[String]): Unit = {
@@ -37,7 +42,6 @@ object FeatureHasherExample {
 //        |4.4 |false|3        |baz   |(262144,[22406,70644,174475,187923],[1.0,1.0,4.4,1.0])  |
 //        |5.5 |false|4        |foo   |(262144,[70644,101499,174475,257907],[1.0,1.0,5.5,1.0]) |
 //        +----+-----+---------+------+--------------------------------------------------------+
-
 
         spark.stop()
 

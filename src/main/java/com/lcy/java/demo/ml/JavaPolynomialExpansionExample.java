@@ -46,5 +46,4 @@ public class JavaPolynomialExpansionExample {
         spark.stop();
         
     }
-    
 }

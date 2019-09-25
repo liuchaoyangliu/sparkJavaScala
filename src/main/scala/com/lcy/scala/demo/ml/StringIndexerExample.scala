@@ -40,8 +40,13 @@ object StringIndexerExample {
                 .getOrCreate()
         spark.sparkContext.setLogLevel("ERROR")
 
-        val df = spark.createDataFrame(
-            Seq((0, "a"), (1, "b"), (2, "c"), (3, "a"), (4, "a"), (5, "c"))
+        val df = spark.createDataFrame(Seq(
+            (0, "a"),
+            (1, "b"),
+            (2, "c"),
+            (3, "a"),
+            (4, "a"),
+            (5, "c"))
         ).toDF("id", "category")
 
         val indexer = new StringIndexer()
@@ -52,7 +57,5 @@ object StringIndexerExample {
         indexed.show()
 
         spark.stop()
-
     }
-
 }

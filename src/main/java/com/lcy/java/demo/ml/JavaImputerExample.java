@@ -1,22 +1,22 @@
 package com.lcy.java.demo.ml;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.spark.ml.feature.Imputer;
 import org.apache.spark.ml.feature.ImputerModel;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.types.*;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.apache.spark.sql.types.DataTypes.*;
 
 public class JavaImputerExample {
     
     public static void main(String[] args) {
-        
         SparkSession spark = SparkSession
                 .builder()
                 .appName("JavaImputer")
@@ -45,7 +45,5 @@ public class JavaImputerExample {
         model.transform(df).show();
         
         spark.stop();
-        
     }
-    
 }

@@ -31,11 +31,8 @@ object QuantileDiscretizerExample {
         val result = discretizer
                 .fit(df)
                 .transform(df)
-
         result.show(false)
 
         spark.stop()
-
     }
-
 }

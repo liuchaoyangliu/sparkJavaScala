@@ -1,6 +1,6 @@
 package com.lcy.scala.demo.ml
 
-import org.apache.spark.ml.feature.MinMaxScaler
+import org.apache.spark.ml.feature.{MinMaxScaler, MinMaxScalerModel}
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.SparkSession
 
@@ -25,9 +25,11 @@ object MinMaxScalerExample {
         val scaler = new MinMaxScaler()
                 .setInputCol("features")
                 .setOutputCol("scaledFeatures")
+                .setMin(0)
+                .setMax(2)
 
         // 计算摘要统计信息并生成MinMaxScalerModel
-        val scalerModel = scaler.fit(dataFrame)
+        val scalerModel: MinMaxScalerModel = scaler.fit(dataFrame)
 
         // 将每个要素重新缩放到范围 [min, max].
         val scaledData = scalerModel.transform(dataFrame)

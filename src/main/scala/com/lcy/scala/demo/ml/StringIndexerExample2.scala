@@ -18,6 +18,7 @@ object StringIndexerExample2 {
      */
 
     def main(args: Array[String]): Unit = {
+
         val spark = SparkSession
                 .builder()
                 .appName("stringIndex")
@@ -25,10 +26,14 @@ object StringIndexerExample2 {
                 .getOrCreate()
         spark.sparkContext.setLogLevel("ERROR")
 
-        val df1 = spark.createDataFrame(
-            Seq((0, "a"), (1, "b"), (2, "c"), (3, "a"), (4, "a"), (5, "c"))
+        val df1 = spark.createDataFrame(Seq(
+            (0, "a"),
+            (1, "b"),
+            (2, "c"),
+            (3, "a"),
+            (4, "a"),
+            (5, "c"))
         ).toDF("id", "category")
-
 
         val indexer = new StringIndexer()
                 .setInputCol("category")
@@ -36,8 +41,13 @@ object StringIndexerExample2 {
 
         indexer.fit(df1).transform(df1).show(false)
 
-        val df2 = spark.createDataFrame(
-            Seq((0, "a"), (1, "b"), (2, "c"), (3, "a"), (4, "a"), (5, "d"))
+        val df2 = spark.createDataFrame(Seq(
+            (0, "a"),
+            (1, "b"),
+            (2, "c"),
+            (3, "a"),
+            (4, "a"),
+            (5, "d"))
         ).toDF("id", "category")
 
         try {
@@ -61,6 +71,4 @@ object StringIndexerExample2 {
         spark.stop()
 
     }
-
-
 }

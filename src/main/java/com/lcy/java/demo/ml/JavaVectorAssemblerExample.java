@@ -45,8 +45,5 @@ public class JavaVectorAssemblerExample {
         output.select("features", "clicked").show(false);
         
         spark.stop();
-        
     }
-    
 }
-

@@ -41,14 +41,13 @@ public class JavaMaxAbsScalerExample {
                 .setInputCol("features")
                 .setOutputCol("scaledFeatures");
         
-        // Compute summary statistics and generate MaxAbsScalerModel
+        // 计算摘要统计信息并生成MaxAbsScalerModel
         MaxAbsScalerModel scalerModel = scaler.fit(dataFrame);
         
-        // rescale each feature to range [-1, 1].
+        // 将每个要素重新缩放到[-1，1]范围。
         Dataset<Row> scaledData = scalerModel.transform(dataFrame);
         scaledData.select("features", "scaledFeatures").show();
         
         spark.stop();
     }
-    
 }

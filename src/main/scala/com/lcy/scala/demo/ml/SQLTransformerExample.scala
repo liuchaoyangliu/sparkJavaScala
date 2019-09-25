@@ -26,9 +26,10 @@ object SQLTransformerExample {
                 .getOrCreate()
         spark.sparkContext.setLogLevel("ERROR")
 
-        val df = spark.createDataFrame(
-            Seq((0, 1.0, 3.0), (2, 2.0, 5.0))
-        ).toDF("id", "v1", "v2")
+        val df = spark.createDataFrame(Seq(
+            (0, 1.0, 3.0),
+            (2, 2.0, 5.0)
+        )).toDF("id", "v1", "v2")
 
         val sqlTrans = new SQLTransformer()
                 .setStatement(
@@ -37,7 +38,5 @@ object SQLTransformerExample {
         sqlTrans.transform(df).show()
 
         spark.stop()
-
     }
-
 }

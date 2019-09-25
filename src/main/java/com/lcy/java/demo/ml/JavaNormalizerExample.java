@@ -1,7 +1,5 @@
 package com.lcy.java.demo.ml;
 
-import org.apache.spark.sql.SparkSession;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,6 +9,7 @@ import org.apache.spark.ml.linalg.VectorUDT;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
@@ -38,7 +37,7 @@ public class JavaNormalizerExample {
         });
         Dataset<Row> dataFrame = spark.createDataFrame(data, schema);
         
-        // Normalize each Vector using $L^1$ norm.
+        // 使用$ L ^ 1 $范数对每个向量进行归一化。
         Normalizer normalizer = new Normalizer()
                 .setInputCol("features")
                 .setOutputCol("normFeatures")
@@ -47,13 +46,11 @@ public class JavaNormalizerExample {
         Dataset<Row> l1NormData = normalizer.transform(dataFrame);
         l1NormData.show();
         
-        // Normalize each Vector using $L^\infty$ norm.
+        // 使用$ L ^ \ infty $范数归一化每个Vector。
         Dataset<Row> lInfNormData =
                 normalizer.transform(dataFrame, normalizer.p().w(Double.POSITIVE_INFINITY));
         lInfNormData.show();
         
         spark.stop();
-        
     }
-    
 }

@@ -16,7 +16,6 @@ import java.util.List;
 public class JavaQuantileDiscretizerExample {
     
     public static void main(String[] args) {
-        
         SparkSession spark = SparkSession
                 .builder()
                 .appName("JavaQuantileDiscretizer")
@@ -50,7 +49,5 @@ public class JavaQuantileDiscretizerExample {
         Dataset<Row> result = discretizer.fit(df).transform(df);
         result.show(false);
         spark.stop();
-        
     }
-    
 }
