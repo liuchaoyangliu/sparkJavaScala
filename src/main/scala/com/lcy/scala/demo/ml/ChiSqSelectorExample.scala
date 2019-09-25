@@ -5,6 +5,8 @@ import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.SparkSession
 
 /**
+ * 特征选择（Feature Selection）指的是在特征向量中选择出那些“优秀”的特征，组成新的、更“精简”的特征向量的过程。
+ * 它在高维数据分析中十分常用，可以剔除掉“冗余”和“无关”的特征，提升学习器的性能。
  *
  * ChiSqSelector代表Chi-Squared特征选择。它对具有分类特征的标记数据进行操作。
  * ChiSqSelector使用 卡方独立性检验来决定选择哪些功能。它支持五种选择方法：
@@ -23,7 +25,6 @@ import org.apache.spark.sql.SparkSession
 object ChiSqSelectorExample {
 
     def main(args: Array[String]): Unit = {
-
         val spark = SparkSession
                 .builder()
                 .appName("ChiSqSelector")
@@ -43,7 +44,7 @@ object ChiSqSelectorExample {
         df.show()
 
         val selector = new ChiSqSelector()
-                .setNumTopFeatures(2)
+                .setNumTopFeatures(1)
                 .setFeaturesCol("features")
                 .setLabelCol("clicked")
                 .setOutputCol("selectedFeatures")
@@ -54,7 +55,5 @@ object ChiSqSelectorExample {
         result.show()
 
         spark.stop()
-
     }
-
 }

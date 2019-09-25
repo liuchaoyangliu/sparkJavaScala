@@ -18,7 +18,6 @@ import org.apache.spark.sql.types.StructType;
 public class JavaChiSqSelectorExample {
     
     public static void main(String[] args) {
-        
         SparkSession spark = SparkSession
                 .builder()
                 .appName("JavaChiSqSelector")
@@ -52,7 +51,5 @@ public class JavaChiSqSelectorExample {
         result.show();
         
         spark.stop();
-        
     }
-    
 }

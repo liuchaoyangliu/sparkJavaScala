@@ -45,6 +45,16 @@ object RFormulaExample {
                 .setFormula("clicked ~ country + hour")
                 .setFeaturesCol("features")
                 .setLabelCol("label")
+        //如果我们使用RFormula公式字符串clicked ~ country + hour，
+        //它表示我们要clicked基于country和进行预测hour，则在转换后，我们应该获得以下DataFrame：
+        //+---+-------+----+-------+--------------+-----+
+        //|id |country|hour|clicked|features      |label|
+        //+---+-------+----+-------+--------------+-----+
+        //|7  |US     |18  |1.0    |[0.0,0.0,18.0]|1.0  |
+        //|8  |CA     |12  |0.0    |[1.0,0.0,12.0]|0.0  |
+        //|9  |NZ     |15  |0.0    |[0.0,1.0,15.0]|0.0  |
+        //+---+-------+----+-------+--------------+-----+
+
 
         val output = formula
                 .fit(dataset)
@@ -53,7 +63,5 @@ object RFormulaExample {
         //        output.select("features", "label").show()
 
         spark.stop()
-
     }
-
 }

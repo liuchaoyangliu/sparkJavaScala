@@ -14,9 +14,7 @@ import org.apache.spark.sql.types.StructType;
 import static org.apache.spark.sql.types.DataTypes.*;
 
 public class JavaRFormulaExample {
-    
     public static void main(String[] args) {
-        
         SparkSession spark = SparkSession
                 .builder()
                 .appName("JavaRFormula")
@@ -46,8 +44,5 @@ public class JavaRFormulaExample {
 //        output.select("features", "label").show();
         output.show(false);
         spark.stop();
-        
     }
-    
 }
-

@@ -14,6 +14,7 @@ import org.apache.spark.sql.functions.col
  * 是不相似的，那么经过转换后它们应仍不具有相似性。
  */
 
+//欧氏距离的桶式随机投影
 object BucketedRandomProjectionLSHExample {
 
     def main(args: Array[String]): Unit = {
@@ -69,6 +70,14 @@ object BucketedRandomProjectionLSHExample {
         //特征转换
         println("散列值存储在“散列”列中的散列数据集：")
         model.transform(dfA).show(false)
+        //  +---+-----------+-----------------------+
+        //  |id |features   |hashes                 |
+        //  +---+-----------+-----------------------+
+        //  |0  |[1.0,1.0]  |[[0.0], [0.0], [-1.0]] |
+        //  |1  |[1.0,-1.0] |[[-1.0], [-1.0], [0.0]]|
+        //  |2  |[-1.0,-1.0]|[[-1.0], [-1.0], [0.0]]|
+        //  |3  |[-1.0,1.0] |[[0.0], [0.0], [-1.0]] |
+        //  +---+-----------+-----------------------+
 
         //计算输入行的位置敏感哈希，然后执行近似
         //相似连接。
@@ -85,17 +94,32 @@ object BucketedRandomProjectionLSHExample {
          * param datasetA要加入的数据集之一  。
          * param datasetB另一个要加入的数据集 。
          * param threshold行对距离的阈值   。
-         * param distCol输出列         ，用于存储每对行之间的距离。
+         * param distCol输出列，用于存储每对行之间的距离。
          * return包含行对的联接数据集。原始行在列中
          * “ datasetA”和“ datasetB”，并添加了列“ distCol”以显示距离
          * 每对之间。
          */
+        //        model.approxSimilarityJoin(dfA, dfB, 1.5, "EuclideanDistance")
+        //                .select(
+        //                    col("datasetA.id").alias("idA"),
+        //                    col("datasetB.id").alias("idB"),
+        //                    col("EuclideanDistance")
+        //                ).show(false)
         model.approxSimilarityJoin(dfA, dfB, 1.5, "EuclideanDistance")
-                .select(
-                    col("datasetA.id").alias("idA"),
-                    col("datasetB.id").alias("idB"),
-                    col("EuclideanDistance")
-                ).show(false)
+                .show(false)
+        //  +-----------------------------------------+----------------------------------------+-----------------+
+        //  |datasetA                                 |datasetB                                |EuclideanDistance|
+        //  +-----------------------------------------+----------------------------------------+-----------------+
+        //  |[1, [1.0,-1.0], [[-1.0], [-1.0], [0.0]]] |[4, [1.0,0.0], [[0.0], [-1.0], [-1.0]]] |1.0              |
+        //  |[0, [1.0,1.0], [[0.0], [0.0], [-1.0]]]   |[6, [0.0,1.0], [[0.0], [0.0], [-1.0]]]  |1.0              |
+        //  |[1, [1.0,-1.0], [[-1.0], [-1.0], [0.0]]] |[7, [0.0,-1.0], [[-1.0], [-1.0], [0.0]]]|1.0              |
+        //  |[3, [-1.0,1.0], [[0.0], [0.0], [-1.0]]]  |[5, [-1.0,0.0], [[-1.0], [0.0], [0.0]]] |1.0              |
+        //  |[0, [1.0,1.0], [[0.0], [0.0], [-1.0]]]   |[4, [1.0,0.0], [[0.0], [-1.0], [-1.0]]] |1.0              |
+        //  |[3, [-1.0,1.0], [[0.0], [0.0], [-1.0]]]  |[6, [0.0,1.0], [[0.0], [0.0], [-1.0]]]  |1.0              |
+        //  |[2, [-1.0,-1.0], [[-1.0], [-1.0], [0.0]]]|[7, [0.0,-1.0], [[-1.0], [-1.0], [0.0]]]|1.0              |
+        //  |[2, [-1.0,-1.0], [[-1.0], [-1.0], [0.0]]]|[5, [-1.0,0.0], [[-1.0], [0.0], [0.0]]] |1.0              |
+        //  +-----------------------------------------+----------------------------------------+-----------------+
+
 
         //计算输入行的位置敏感哈希，然后执行近似最近
         //邻居搜索。
@@ -107,56 +131,88 @@ object BucketedRandomProjectionLSHExample {
          * 重载了aboutNearestNeighbors的方法。使用“ distCol”作为默认distCol。
          */
         model.approxNearestNeighbors(dfA, key, 2).show(false)
+        //  +---+----------+-----------------------+-------+
+        //  |id |features  |hashes                 |distCol|
+        //  +---+----------+-----------------------+-------+
+        //  |0  |[1.0,1.0] |[[0.0], [0.0], [-1.0]] |1.0    |
+        //  |1  |[1.0,-1.0]|[[-1.0], [-1.0], [0.0]]|1.0    |
+        //  +---+----------+-----------------------+-------+
 
         spark.stop()
     }
 
 
-    //        def main(args: Array[String]): Unit = {
+    //    def main(args: Array[String]): Unit = {
     //
-    //            val spark = SparkSession
-    //                    .builder()
-    //                    .appName("bucketedRandomProjectionLSH")
-    //                    .master("local")
-    //                    .getOrCreate()
-    //            spark.sparkContext.setLogLevel("ERROR")
+    //        val spark = SparkSession
+    //                .builder()
+    //                .appName("bucketedRandomProjectionLSH")
+    //                .master("local")
+    //                .getOrCreate()
+    //        spark.sparkContext.setLogLevel("ERROR")
     //
-    //            val dfA = spark.createDataFrame(Seq(
-    //                (0, Vectors.dense(1.0, 1.0)),
-    //                (1, Vectors.dense(1.0, -1.0)),
-    //                (2, Vectors.dense(-1.0, -1.0)),
-    //                (3, Vectors.dense(-1.0, 1.0))
-    //            )).toDF("id", "features")
+    //        val dfA = spark.createDataFrame(Seq(
+    //            (0, Vectors.dense(1.0, 1.0)),
+    //            (1, Vectors.dense(1.0, -1.0)),
+    //            (2, Vectors.dense(-1.0, -1.0)),
+    //            (3, Vectors.dense(-1.0, 1.0))
+    //        )).toDF("id", "features")
     //
-    //            val dfB = spark.createDataFrame(Seq(
-    //                (0, Vectors.dense(1.0, 1.0)),
-    //                (1, Vectors.dense(1.0, -1.0)),
-    //                (2, Vectors.dense(-1.0, -1.0)),
-    //                (3, Vectors.dense(-1.0, 1.0))
-    //            )).toDF("id", "features")
+    //        val dfB = spark.createDataFrame(Seq(
+    //            (0, Vectors.dense(1.0, 1.0)),
+    //            (1, Vectors.dense(1.0, -1.0)),
+    //            (2, Vectors.dense(-1.0, -1.0)),
+    //            (3, Vectors.dense(-1.0, 1.0))
+    //        )).toDF("id", "features")
     //
-    //            val key = Vectors.dense(1.0, 0.0)
+    //        val key = Vectors.dense(1.0, 0.0)
     //
-    //            val brp = new BucketedRandomProjectionLSH()
-    //                    .setBucketLength(2.0)
-    //                    .setNumHashTables(3)
-    //                    .setInputCol("features")
-    //                    .setOutputCol("hashes")
+    //        val brp = new BucketedRandomProjectionLSH()
+    //                .setBucketLength(2.0)
+    //                .setNumHashTables(3)
+    //                .setInputCol("features")
+    //                .setOutputCol("hashes")
     //
-    //            val model = brp.fit(dfA)
+    //        val model = brp.fit(dfA)
     //
-    //            model.transform(dfA).show(false)
+    //        model.transform(dfA).show(false)
+    //        //  +---+-----------+-----------------------+
+    //        //  |id |features   |hashes                 |
+    //        //  +---+-----------+-----------------------+
+    //        //  |0  |[1.0,1.0]  |[[0.0], [0.0], [-1.0]] |
+    //        //  |1  |[1.0,-1.0] |[[-1.0], [-1.0], [0.0]]|
+    //        //  |2  |[-1.0,-1.0]|[[-1.0], [-1.0], [0.0]]|
+    //        //  |3  |[-1.0,1.0] |[[0.0], [0.0], [-1.0]] |
+    //        //  +---+-----------+-----------------------+
     //
-    //            model.approxSimilarityJoin(dfA, dfB, 1.5, "EuclideanDistance")
-    //                    .select(
-    //                        col("datasetA.id").alias("idA"),
-    //                        col("datasetB.id").alias("idB"),
-    //                        col("EuclideanDistance")
-    //                    ).show(false)
     //
-    //            model.approxNearestNeighbors(dfA, key, 2).show(false)
+    //        //        model.approxSimilarityJoin(dfA, dfB, 1.5, "EuclideanDistance")
+    //        //                .select(
+    //        //                    col("datasetA.id").alias("idA"),
+    //        //                    col("datasetB.id").alias("idB"),
+    //        //                    col("EuclideanDistance")
+    //        //                ).show(false)
+    //        model.approxSimilarityJoin(dfA, dfB, 1.5, "EuclideanDistance")
+    //                .show(false)
+    //        //  +-----------------------------------------+-----------------------------------------+-----------------+
+    //        //  |datasetA                                 |datasetB                                 |EuclideanDistance|
+    //        //  +-----------------------------------------+-----------------------------------------+-----------------+
+    //        //  |[0, [1.0,1.0], [[0.0], [0.0], [-1.0]]]   |[0, [1.0,1.0], [[0.0], [0.0], [-1.0]]]   |0.0              |
+    //        //  |[3, [-1.0,1.0], [[0.0], [0.0], [-1.0]]]  |[3, [-1.0,1.0], [[0.0], [0.0], [-1.0]]]  |0.0              |
+    //        //  |[2, [-1.0,-1.0], [[-1.0], [-1.0], [0.0]]]|[2, [-1.0,-1.0], [[-1.0], [-1.0], [0.0]]]|0.0              |
+    //        //  |[1, [1.0,-1.0], [[-1.0], [-1.0], [0.0]]] |[1, [1.0,-1.0], [[-1.0], [-1.0], [0.0]]] |0.0              |
+    //        //  +-----------------------------------------+-----------------------------------------+-----------------+
     //
-    //            spark.stop()
-    //        }
+    //        model.approxNearestNeighbors(dfA, key, 2).show(false)
+    //        //  +---+----------+-----------------------+-------+
+    //        //  |id |features  |hashes                 |distCol|
+    //        //  +---+----------+-----------------------+-------+
+    //        //  |0  |[1.0,1.0] |[[0.0], [0.0], [-1.0]] |1.0    |
+    //        //  |1  |[1.0,-1.0]|[[-1.0], [-1.0], [0.0]]|1.0    |
+    //        //  +---+----------+-----------------------+-------+
+    //
+    //        spark.stop()
+    //    }
+
 
 }
