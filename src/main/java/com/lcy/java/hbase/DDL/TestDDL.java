@@ -12,7 +12,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 public class TestDDL {
-    
+
     private Admin admin;
     private Connection connection;
     

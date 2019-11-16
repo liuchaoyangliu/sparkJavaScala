@@ -12,7 +12,8 @@ import java.io.IOException;
 public class FruitReducer extends TableReducer<LongWritable, Text, NullWritable> {
 
     @Override
-    protected void reduce(LongWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(LongWritable key, Iterable<Text> values, Context context)
+            throws IOException, InterruptedException {
 
         for (Text value : values) {
 

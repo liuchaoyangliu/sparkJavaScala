@@ -10,15 +10,15 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-public class Fruit2Driver implements Tool {
+public class FruitDriver implements Tool {
 
     private Configuration conf = null;
 
     public static void main(String[] args) throws Exception {
 
-        // 导入hbase-site.xml文件后可直接本地运行，不需要ar包后扔 yarn 运行
+        // 导入hbase-site.xml文件后可直接本地运行，不需要jar包后扔 yarn 运行
         Configuration configuration = HBaseConfiguration.create();
-        int run = ToolRunner.run(configuration, new Fruit2Driver(), args);
+        int run = ToolRunner.run(configuration, new FruitDriver(), args);
 
         System.exit(run);
     }
@@ -31,14 +31,14 @@ public class Fruit2Driver implements Tool {
         Job job = Job.getInstance(conf);
 
         // 2 设置类路径
-        job.setJarByClass(Fruit2Driver.class);
+        job.setJarByClass(FruitDriver.class);
 
         // 3 设置Mapper
         TableMapReduceUtil.initTableMapperJob("fruit1", new Scan(),
-                Fruit2Mapper.class, ImmutableBytesWritable.class, Put.class, job);
+                FruitMapper.class, ImmutableBytesWritable.class, Put.class, job);
 
         // 4 设置Reducer(不需要指定输出类型)
-        TableMapReduceUtil.initTableReducerJob("fruit2", Fruit2Reducer.class, job);
+        TableMapReduceUtil.initTableReducerJob("fruit2", FruitReducer.class, job);
 
         // 5. 提交任务
         boolean b = job.waitForCompletion(true);
@@ -57,4 +57,5 @@ public class Fruit2Driver implements Tool {
     public Configuration getConf() {
         return conf;
     }
+    
 }

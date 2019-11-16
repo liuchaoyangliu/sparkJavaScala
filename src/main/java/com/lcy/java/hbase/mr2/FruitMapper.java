@@ -10,10 +10,11 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
 
-public class Fruit2Mapper extends TableMapper<ImmutableBytesWritable, Put> {
+public class FruitMapper extends TableMapper<ImmutableBytesWritable, Put> {
 
     @Override
-    protected void map(ImmutableBytesWritable key, Result value, Context context) throws IOException, InterruptedException {
+    protected void map(ImmutableBytesWritable key, Result value, Context context)
+            throws IOException, InterruptedException {
 
         Put put = new Put(key.get());
 
@@ -25,4 +26,5 @@ public class Fruit2Mapper extends TableMapper<ImmutableBytesWritable, Put> {
 
         context.write(key, put);
     }
+    
 }
