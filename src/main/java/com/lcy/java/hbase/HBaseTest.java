@@ -3,6 +3,7 @@ package com.lcy.java.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,6 +12,14 @@ public class HBaseTest {
     
     private static Connection connection = null;
     private static HBaseAdmin admin = null;
+    
+    public static void main(String[] args) {
+        
+        
+        
+        close();
+    }
+    
     
     static {
         //设置配置文件信息
@@ -67,8 +76,8 @@ public class HBaseTest {
             //创建table对象
             Table table = connection.getTable(TableName.valueOf(tableName));
             //封装数据
-            Put put = new Put(rowKey.getBytes());
-            put.addColumn(columnFamily.getBytes(), column.getBytes(), value.getBytes());
+            Put put = new Put(Bytes.toBytes(rowKey));
+            put.addColumn(Bytes.toBytes(columnFamily),Bytes.toBytes(column), Bytes.toBytes(value));
             //向表中插入数据
             table.put(put);
             //关闭连接
@@ -88,7 +97,7 @@ public class HBaseTest {
             ArrayList<Delete> deleteList = new ArrayList<>();
             for (String row :
                     rows) {
-                Delete delete = new Delete(row.getBytes());
+                Delete delete = new Delete(Bytes.toBytes(row));
                 deleteList.add(delete);
             }
             //删除数据
@@ -104,14 +113,14 @@ public class HBaseTest {
     public static void getRow(String tableName, String rowKey) throws IOException {
         if (isTableExist(tableName)) {
             Table table = connection.getTable(TableName.valueOf(tableName));
-            Get get = new Get(rowKey.getBytes());
+            Get get = new Get(Bytes.toBytes(rowKey));
             
             Result result = table.get(get);
             for (Cell cell : result.rawCells()) {
-                System.out.println("行键：" + result.getRow().toString());
-                System.out.println("列族：" + CellUtil.cloneFamily(cell).toString());
-                System.out.println("列：" + CellUtil.cloneQualifier(cell).toString());
-                System.out.println("值：" + CellUtil.cloneValue(cell).toString());
+                System.out.println("行键：" + Bytes.toString(result.getRow()));
+                System.out.println("列族：" + Bytes.toString(CellUtil.cloneFamily(cell)));
+                System.out.println("列：" + Bytes.toString(CellUtil.cloneQualifier(cell)));
+                System.out.println("值：" + Bytes.toString(CellUtil.cloneValue(cell)));
                 System.out.println("时间戳：" + cell.getTimestamp());
             }
         } else {
@@ -129,10 +138,10 @@ public class HBaseTest {
             for (Result result : resultScanner) {
                 Cell[] cells = result.rawCells();
                 for (Cell cell : cells) {
-                    System.out.println("行键：" + CellUtil.cloneRow(cell).toString());
-                    System.out.println("列族：" + CellUtil.cloneFamily(cell).toString());
-                    System.out.println("列：" + CellUtil.cloneQualifier(cell).toString());
-                    System.out.println("值：" + CellUtil.cloneValue(cell).toString());
+                    System.out.println("行键：" + Bytes.toString(CellUtil.cloneRow(cell)));
+                    System.out.println("列族：" + Bytes.toString(CellUtil.cloneFamily(cell)));
+                    System.out.println("列：" + Bytes.toString(CellUtil.cloneQualifier(cell)));
+                    System.out.println("值：" + Bytes.toString(CellUtil.cloneValue(cell)));
                 }
             }
         } else {
@@ -147,16 +156,16 @@ public class HBaseTest {
                                        String qualifier) throws IOException {
         if (isTableExist(tableName)) {
             Table table = connection.getTable(TableName.valueOf(tableName));
-            Get get = new Get(rowKey.getBytes());
+            Get get = new Get(Bytes.toBytes(rowKey));
             
-            get.addColumn(family.getBytes(), qualifier.getBytes());
+            get.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier));
             
             Result result = table.get(get);
             for (Cell cell : result.rawCells()) {
-                System.out.println("行键：" + CellUtil.cloneRow(cell).toString());
-                System.out.println("列族：" + CellUtil.cloneFamily(cell).toString());
-                System.out.println("列：" + CellUtil.cloneQualifier(cell).toString());
-                System.out.println("值：" + CellUtil.cloneValue(cell).toString());
+                System.out.println("行键：" + Bytes.toString(CellUtil.cloneRow(cell)));
+                System.out.println("列族：" + Bytes.toString(CellUtil.cloneFamily(cell)));
+                System.out.println("列：" + Bytes.toString(CellUtil.cloneQualifier(cell)));
+                System.out.println("值：" + Bytes.toString(CellUtil.cloneValue(cell)));
             }
         } else {
             System.out.println("表：" + tableName + "不存在");
