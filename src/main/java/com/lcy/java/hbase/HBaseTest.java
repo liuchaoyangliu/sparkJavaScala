@@ -95,8 +95,7 @@ public class HBaseTest {
             //获取Table对象
             Table table = connection.getTable(TableName.valueOf(tableName));
             ArrayList<Delete> deleteList = new ArrayList<>();
-            for (String row :
-                    rows) {
+            for (String row : rows) {
                 Delete delete = new Delete(Bytes.toBytes(row));
                 deleteList.add(delete);
             }
@@ -123,6 +122,7 @@ public class HBaseTest {
                 System.out.println("值：" + Bytes.toString(CellUtil.cloneValue(cell)));
                 System.out.println("时间戳：" + cell.getTimestamp());
             }
+            table.close();
         } else {
             System.out.println("表：" + tableName + " 不存在！");
         }
@@ -144,6 +144,7 @@ public class HBaseTest {
                     System.out.println("值：" + Bytes.toString(CellUtil.cloneValue(cell)));
                 }
             }
+            table.close();
         } else {
             System.out.println("表：" + tableName + "不存在！");
         }
@@ -167,6 +168,7 @@ public class HBaseTest {
                 System.out.println("列：" + Bytes.toString(CellUtil.cloneQualifier(cell)));
                 System.out.println("值：" + Bytes.toString(CellUtil.cloneValue(cell)));
             }
+            table.close();
         } else {
             System.out.println("表：" + tableName + "不存在");
         }
@@ -190,3 +192,6 @@ public class HBaseTest {
     }
     
 }
+
+
+
