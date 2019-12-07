@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+//过滤器
+
 public class HbaseFilter {
     
     private static Connection connection = null;
@@ -101,6 +103,7 @@ public class HbaseFilter {
         Scan scan = new Scan();
         Filter valueFilter = new ValueFilter(CompareFilter.CompareOp.EQUAL,
                 new SubstringComparator("男"));
+        
         scan.setFilter(valueFilter);
         ResultScanner resultScanner = table.getScanner(scan);
         for (Result result : resultScanner) {
@@ -109,6 +112,7 @@ public class HbaseFilter {
                 System.out.println(cell);
             }
         }
+        
     }
     
     //时间戳过滤器 TimestampsFilter
@@ -144,11 +148,11 @@ public class HbaseFilter {
         Table table = connection.getTable(TableName.valueOf("student"));
         Scan scan = new Scan();
         SingleColumnValueFilter singleColumnValueFilter = new SingleColumnValueFilter(
-                "info".getBytes(),
-                "name".getBytes(),
+                "info".getBytes(),//列簇
+                "name".getBytes(),//列
                 CompareFilter.CompareOp.EQUAL,
                 new SubstringComparator("刘晨"));
-        
+        //如果不设置为 true，则那些不包含指定 column 的行也会返回
         singleColumnValueFilter.setFilterIfMissing(true);
         
         scan.setFilter(singleColumnValueFilter);
@@ -173,7 +177,8 @@ public class HbaseFilter {
         Table table = connection.getTable(TableName.valueOf("student"));
         Scan scan = new Scan();
         SingleColumnValueExcludeFilter singleColumnValueExcludeFilter =
-                new SingleColumnValueExcludeFilter("info".getBytes(),
+                new SingleColumnValueExcludeFilter(
+                        "info".getBytes(),
                         "name".getBytes(),
                         CompareFilter.CompareOp.EQUAL,
                         new SubstringComparator("刘晨"));
@@ -202,6 +207,7 @@ public class HbaseFilter {
         Scan scan = new Scan();
         PrefixFilter prefixFilter = new PrefixFilter("9501".getBytes());
         scan.setFilter(prefixFilter);
+        
         ResultScanner resultScanner = table.getScanner(scan);
         for (Result result : resultScanner) {
             List<Cell> cells = result.listCells();
