@@ -1,4 +1,4 @@
-package com.lcy.java.spark.hdfs;
+package com.lcy.java.hdfs;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -78,6 +79,15 @@ public class HdfsUtil {
     public void rm() throws IllegalArgumentException, IOException {
 
         fs.delete(new Path("/aa"), true);
+    }
+    
+    @After
+    public void after(){
+        try{
+            fs.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }
