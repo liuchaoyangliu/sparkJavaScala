@@ -13,18 +13,18 @@ public class HBaseTest {
     private static Connection connection = null;
     private static HBaseAdmin admin = null;
     
-    public static void main(String[] args) {
-        
+    public static void main(String[] args) throws IOException {
         
         
         close();
+        
     }
     
     
     static {
         //设置配置文件信息
         Configuration conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum", "");
+        conf.set("hbase.zookeeper.quorum", "192.168.153.128");
         conf.set("hbase.zookeeper.property.clientPort", "2181");
         
         try {
@@ -35,6 +35,7 @@ public class HBaseTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
     }
     
     //判断表是否存在
@@ -66,7 +67,16 @@ public class HBaseTest {
         }
     }
     
+    /**
+     * 添加数据
+     * tableName:    表名
+     * rowKey:       行键
+     * familyName:   列簇
+     * columnName:   列名
+     * value:        值
+     */
     //向表中插入一条数据
+    //'student','1001','info:sex','male'
     public static void addRowData(String tableName,
                                   String rowKey,
                                   String columnFamily,
@@ -75,9 +85,10 @@ public class HBaseTest {
         if (isTableExist(tableName)) {
             //创建table对象
             Table table = connection.getTable(TableName.valueOf(tableName));
+            
             //封装数据
             Put put = new Put(Bytes.toBytes(rowKey));
-            put.addColumn(Bytes.toBytes(columnFamily),Bytes.toBytes(column), Bytes.toBytes(value));
+            put.addColumn(Bytes.toBytes(columnFamily), Bytes.toBytes(column), Bytes.toBytes(value));
             //向表中插入数据
             table.put(put);
             //关闭连接
