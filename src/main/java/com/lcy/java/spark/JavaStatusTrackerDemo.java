@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Example of using Spark's status APIs from Java.
+ * 从Java使用Spark的状态API的示例。
  */
 public final class JavaStatusTrackerDemo {
     

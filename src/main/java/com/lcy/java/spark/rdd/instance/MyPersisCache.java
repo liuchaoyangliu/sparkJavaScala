@@ -10,7 +10,7 @@ public class MyPersisCache {
         SparkConf conf = new SparkConf().setMaster("local").setAppName("TestStorgeLevel");
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        JavaRDD<String> text = sc.textFile("file:\\E:\\sparkData\\data2.txt");
+        JavaRDD<String> text = sc.textFile("file:\\D:\\sparkData\\data2.txt");
         text = text.cache();
 
         Long startTime1 = System.currentTimeMillis();

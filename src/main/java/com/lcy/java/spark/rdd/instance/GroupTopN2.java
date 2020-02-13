@@ -1,13 +1,13 @@
 package com.lcy.java.spark.rdd.instance;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import scala.Tuple2;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
 
 
 public class GroupTopN2 {
@@ -53,18 +53,43 @@ public class GroupTopN2 {
                     return new Tuple2<>(className, Arrays.asList(top3));
                 });
 
-        top3Score.foreach( t -> {
-            System.out.println("class: " + t._1);
-            Iterator<Integer> scoreIterator = t._2.iterator();
-            while (scoreIterator.hasNext()) {
-                Integer score = scoreIterator.next();
-                System.out.println(score);
-            }
-            System.out.println("=======================================");
+        top3Score.foreach(t -> {
+            System.out.println("class: " + t._1 + "  " + t._2);
+//            class: class3  [14, 11, 8]
+//            class: class4  [15, 12, 9]
+//            class: class2  [13, 10, 7]
         });
 
         jsc.close();
     }
+    
+    
+    
+    
+    
+    public void demo() {
+        SparkConf conf = new SparkConf().setAppName("sparkStudy").setMaster("local");
+        JavaSparkContext jsc = new JavaSparkContext(conf);
+        jsc.setLogLevel("ERROR");
+
+        jsc.textFile("file:\\D:\\sparkData\\demo.txt")
+                .mapToPair(line -> {
+                    String[] lineSplited = line.split(",");
+                    return new Tuple2<>(lineSplited[0], Integer.valueOf(lineSplited[1]));
+                })
+                .groupByKey()
+                .mapToPair(
+                        classScores -> {
+                            String className = classScores._1;
+                            List<Integer> list = IteratorUtils.toList(classScores._2.iterator());
+                            Collections.sort(list, (o1, o2) -> o1 - o2);
+                            return new Tuple2<>(className, list.subList(0, 3));
+                        })
+                .foreach(t -> System.out.println("class: " + t._1 + " " + t._2));
+
+        jsc.close();
+    }
+
 
 }
 

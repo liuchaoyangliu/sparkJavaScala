@@ -14,16 +14,16 @@ import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.sql.SparkSession;
 
 /**
- * Computes the PageRank of URLs from an input file. Input file should
- * be in format of:
+ *计算输入文件中URL的PageRank。输入文件应
+ *格式为：
  * URL         neighbor URL
  * URL         neighbor URL
  * URL         neighbor URL
  * ...
- * where URL and their neighbors are separated by space(s).
+ * URL和它们的邻居之间用空格隔开。
  * <p>
- * This is an example implementation for learning how to use Spark. For more conventional use,
- * please refer to org.apache.spark.graphx.lib.PageRank
+ *这是用于学习如何使用Spark的示例实现。对于更常规的用途，
+ *请参考org.apache.spark.graphx.lib.PageRank
  * <p>
  * Example Usage:
  * <pre>

@@ -11,10 +11,10 @@ import java.util.Random;
 import java.util.regex.Pattern;
 
 /**
- * Logistic regression based classification.
+ * 基于逻辑回归的分类。
  * <p>
- * This is an example implementation for learning how to use Spark. For more conventional use,
- * please refer to org.apache.spark.ml.classification.LogisticRegression.
+*这是用于学习如何使用Spark的示例实现。对于更常规的用途，
+ *请参考org.apache.spark.ml.classification.LogisticRegression。
  */
 public final class JavaHdfsLR {
     

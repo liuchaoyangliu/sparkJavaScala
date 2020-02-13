@@ -14,8 +14,8 @@ import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.sql.SparkSession;
 
 /**
- * Transitive closure on a graph, implemented in Java.
- * Usage: JavaTC [partitions]
+ * 用Java实现的图上的传递闭包。
+ *用法：JavaTC [分区]
  */
 public final class JavaTC {
     
@@ -63,7 +63,8 @@ public final class JavaTC {
         // the graph to obtain the path (x, z).
         
         // Because join() joins on keys, the edges are stored in reversed order.
-        JavaPairRDD<Integer, Integer> edges = tc.mapToPair(e -> new Tuple2<>(e._2(), e._1()));
+        JavaPairRDD<Integer, Integer> edges =
+                tc.mapToPair(e -> new Tuple2<>(e._2(), e._1()));
         
         long oldCount;
         long nextCount = tc.count();

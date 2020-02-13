@@ -1,14 +1,15 @@
 package com.lcy.scala.spark.rdd.secondarySort
 
 
-class MySecondSort(val first:Int, val second: String)
-  extends Ordered[MySecondSort] with Serializable{
-  override def compare(that: MySecondSort): Int = {
-    if(this.first - that.first != 0){
-      this.first - that.first
-    }  else {
-      this.second.compareTo(that.second)
+class MySecondSort(val first: Int, val second: String)
+        extends Ordered[MySecondSort] with Serializable {
+
+    override def compare(that: MySecondSort): Int = {
+        if (this.first - that.first != 0) {
+            this.first - that.first
+        } else {
+            this.second.compareTo(that.second)
+        }
     }
-  }
 
 }

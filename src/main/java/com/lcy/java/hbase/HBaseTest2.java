@@ -1,6 +1,5 @@
 package com.lcy.java.hbase;
 
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -17,7 +16,6 @@ public class HBaseTest2 {
     private static Connection connection;
     private static HBaseAdmin admin;
     
-    
     static {
         Configuration configuration = HBaseConfiguration.create();
         configuration.set("hbase.zookeeper.quorum", "192.168.153.128");
@@ -28,6 +26,10 @@ public class HBaseTest2 {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    public static void main(String[] args) {
+    
     }
     
     //查询所有表
@@ -130,23 +132,5 @@ public class HBaseTest2 {
             }
         }
     }
-
-
-//    public static void close() {
-//        if (admin != null) {
-//            try {
-//                admin.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (connection != null) {
-//            try {
-//                connection.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 
 }

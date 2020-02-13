@@ -32,47 +32,83 @@ import scala.Tuple2;
  */
 
 public class UpdateStateByKeyOperator {
+
+//    public static void main(String[] args) throws InterruptedException {
+//        SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("UpdateStateByKeyDemo");
+//        JavaStreamingContext jsc = new JavaStreamingContext(conf, Durations.seconds(5));
+//        /**
+//         * 设置checkpoint目录
+//         *
+//         * 多久会将内存中的数据（每一个key所对应的状态）写入到磁盘上一份呢？
+//         *     如果你的batch interval小于10s  那么10s会将内存中的数据写入到磁盘一份
+//         *     如果bacth interval 大于10s，那么就以bacth interval为准
+//         *
+//         * 这样做是为了防止频繁的写HDFS
+//         */
+//
+//        jsc.checkpoint("hdfs://node1:9000/spark/checkpoint");
+//
+//        JavaReceiverInputDStream<String> lines = jsc.socketTextStream("node5", 9999);
+//
+//        JavaDStream<String> words = lines.flatMap(s -> Arrays.asList(s.split(" ")).iterator());
+//
+//        JavaPairDStream<String, Integer> ones = words.mapToPair(s -> new Tuple2<>(s, 1));
+//
+//        /**
+//         * values:经过分组最后 这个key所对应的value  [1,1,1,1,1]
+//         * state:这个key在本次之前之前的状态
+//         */
+//        JavaPairDStream<String, Integer> count =
+//                ones.updateStateByKey((values, state) -> {
+//                            Integer updateValue = 0;
+//                            if (state.isPresent()) {
+//                                updateValue = state.get();
+//                            }
+//                            for (Integer value : values) {
+//                                updateValue += value;
+//                            }
+//                            return Optional.of(updateValue);
+//                        }
+//                );
+//        count.print();
+//
+//        jsc.start();
+//        jsc.awaitTermination();
+//        jsc.close();
+//    }
+    
+    
     public static void main(String[] args) throws InterruptedException {
+        
         SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("UpdateStateByKeyDemo");
         JavaStreamingContext jsc = new JavaStreamingContext(conf, Durations.seconds(5));
-        /**
-         * 设置checkpoint目录
-         *
-         * 多久会将内存中的数据（每一个key所对应的状态）写入到磁盘上一份呢？
-         *     如果你的batch interval小于10s  那么10s会将内存中的数据写入到磁盘一份
-         *     如果bacth interval 大于10s，那么就以bacth interval为准
-         *
-         * 这样做是为了防止频繁的写HDFS
-         */
-
+        
         jsc.checkpoint("hdfs://node1:9000/spark/checkpoint");
-
-        JavaReceiverInputDStream<String> lines = jsc.socketTextStream("node5", 9999);
-
-        JavaDStream<String> words = lines.flatMap(s -> Arrays.asList(s.split(" ")).iterator());
-
-        JavaPairDStream<String, Integer> ones = words.mapToPair(s -> new Tuple2<>(s, 1));
-
-        /**
-         * values:经过分组最后 这个key所对应的value  [1,1,1,1,1]
-         * state:这个key在本次之前之前的状态
-         */
-        JavaPairDStream<String, Integer> count =
-                ones.updateStateByKey((values, state) -> {
-                    Integer updateValue = 0;
-                    if(state.isPresent()){
-                        updateValue = state.get();
-                    }
-                    for(Integer value : values){
-                        updateValue += value;
-                    }
-                    return Optional.of(updateValue);
-                }
-                );
-        count.print();
-
+        
+        jsc.socketTextStream("node5", 9999)
+                .flatMap(s -> Arrays.asList(s.split(" ")).iterator())
+                .mapToPair(s -> new Tuple2<>(s, 1))
+                .updateStateByKey((values, state) -> {
+                            // value 旧值 累加之前的值
+                            // status 新值 需要累加的值
+                            Integer updateValue = 0;
+                            if (state.isPresent()) {
+                                updateValue = (Integer) state.get();
+                            }
+                            for (Integer value : values) {
+                                updateValue += value;
+                            }
+                            return Optional.of(updateValue);
+                        }
+                )
+                .print();
+        
         jsc.start();
         jsc.awaitTermination();
         jsc.close();
+        
+        
     }
+    
+    
 }

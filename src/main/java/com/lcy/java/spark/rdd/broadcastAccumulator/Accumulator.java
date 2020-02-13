@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class Accumulator {
+    
     public static void main(String[] args) {
 
         SparkSession sparkSession = SparkSession.builder()
@@ -34,4 +35,5 @@ public class Accumulator {
         System.out.println("the value of accumulator is:"+count.value());
 
     }
+    
 }

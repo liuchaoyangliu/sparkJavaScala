@@ -14,7 +14,6 @@ object WordCount {
       .map(word => (word, 1))
       .reduceByKey(_+_)
       .foreach(println)
-
     sc.stop()
 
   }

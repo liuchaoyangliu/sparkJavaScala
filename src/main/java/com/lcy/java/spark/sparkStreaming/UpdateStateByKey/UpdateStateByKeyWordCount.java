@@ -7,6 +7,9 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.streaming.Durations;
+import org.apache.spark.streaming.api.java.JavaDStream;
+import org.apache.spark.streaming.api.java.JavaPairDStream;
+import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 
 import scala.Tuple2;
@@ -17,31 +20,27 @@ import scala.Tuple2;
  * @author Administrator
  */
 public class UpdateStateByKeyWordCount {
-
+    
     public static void main(String[] args) throws InterruptedException {
-
-        /**
-
-
-
+        
         SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("UpdateStateByKeyWordCount");
         JavaStreamingContext jssc = new JavaStreamingContext(conf, Durations.seconds(5));
-
+        
         // 第一点，如果要使用updateStateByKey算子，就必须设置一个checkpoint目录，开启checkpoint机制
         // 这样的话才能把每个key对应的state除了在内存中有，那么是不是也要checkpoint一份
         // 因为你要长期保存一份key的state的话，那么spark streaming是要求必须用checkpoint的，以便于在
         // 内存数据丢失的时候，可以从checkpoint中恢复数据
-
+        
         // 开启checkpoint机制，很简单，只要调用jssc的checkpoint()方法，设置一个hdfs目录即可
         jssc.checkpoint("./");
-
+        
         // 然后先实现基础的wordcount逻辑
         JavaReceiverInputDStream<String> lines = jssc.socketTextStream("localhost", 9999);
-
+        
         JavaDStream<String> words = lines.flatMap(line -> Arrays.asList(line.split(" ")).iterator());
-
+        
         JavaPairDStream<String, Integer> pairs = words.mapToPair(word -> new Tuple2<>(word, 1));
-
+        
         // 到了这里，就不一样了，之前的话，是不是直接就是pairs.reduceByKey
         // 然后，就可以得到每个时间段的batch对应的RDD，计算出来的单词计数
         // 然后，可以打印出那个时间段的单词计数
@@ -77,11 +76,11 @@ public class UpdateStateByKeyWordCount {
 //                return Optional.of(newValue);
 //            }
 //        });
-
-
+        
+        
         // 但是，我们的updateStateByKey，就可以实现直接通过Spark维护一份每个单词的全局的统计次数
         JavaPairDStream<String, Integer> wordCounts = pairs.updateStateByKey(
-                (Function2<List<Integer>, Optional<Integer>, Optional<Integer>>) (values, state) -> {
+                (values, state) -> {
                     Integer newValue = 0;
                     if (state.isPresent()) {
                         newValue = state.get();
@@ -91,47 +90,18 @@ public class UpdateStateByKeyWordCount {
                     }
                     return Optional.of(newValue);
                 });
-
-
+        
+        
         // 到这里为止，相当于是，每个batch过来是，计算到pairs DStream，就会执行全局的updateStateByKey
         // 算子，updateStateByKey返回的JavaPairDStream，其实就代表了每个key的全局的计数
         // 打印出来
         wordCounts.print();
-
+        
         jssc.start();
         jssc.awaitTermination();
         jssc.close();
-
-         */
-
-        SparkConf conf = new SparkConf().setAppName("UpdateStateByKeyWordCount").setMaster("local[2]");
-        JavaStreamingContext jssc = new JavaStreamingContext(conf, Durations.seconds(5));
-        jssc.sparkContext().setLogLevel("ERROR");
-
-        jssc.checkpoint("./checkpoint");
-
-        jssc.socketTextStream("127.0.0.1", 9999)
-                .flatMap(line -> Arrays.asList(line.split(" ")).iterator())
-                .mapToPair(word -> new Tuple2<>(word, 1))
-                .updateStateByKey(
-                        (Function2<List<Integer>, Optional<Integer>, Optional<Integer>>)
-                                (values, state) -> {
-                    Integer newValue = 0;
-                    if(state.isPresent()){
-                        newValue = state.get();
-                    }
-                    for (Integer value: values) {
-                        newValue += value;
-                    }
-                    return Optional.of(newValue);
-                })
-                .print();
-
-        jssc.start();
-        jssc.awaitTermination();
-        jssc.close();
-
-
+        
+        
     }
-
+    
 }

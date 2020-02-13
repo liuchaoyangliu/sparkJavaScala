@@ -47,9 +47,9 @@ public class SecondSort implements Ordered<SecondSort>, Serializable {
      */
     public boolean $greater(SecondSort that) {
         if (this.first > that.getFirst()) {
-            return true;
-        } else if (this.first == that.getFirst() && this.second > that.getSecond()) {
-            return true;
+                return true;
+            } else if (this.first == that.getFirst() && this.second > that.getSecond()) {
+                return true;
         }
         return false;
     }

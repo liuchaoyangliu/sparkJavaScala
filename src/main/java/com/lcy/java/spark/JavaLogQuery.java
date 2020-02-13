@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Executes a roll up-style query against Apache logs.
+ * 对Apache日志执行汇总样式查询。
  * <p>
  * Usage: JavaLogQuery [logFile]
  */

@@ -11,21 +11,36 @@ public class GroupTopN {
 
     public static void main(String[] args) {
 
-        SparkConf conf = new SparkConf().setAppName("study").setMaster("local");
-        JavaSparkContext jsc = new JavaSparkContext(conf);
-
+//        SparkConf conf = new SparkConf().setAppName("study").setMaster("local");
+//        JavaSparkContext jsc = new JavaSparkContext(conf);
+//
+//        jsc.textFile("file:\\D:\\sparkData\\demo.txt")
+//                .mapToPair(line ->{
+//                    String[] strings = line.split(",");
+//                    return new Tuple2<>(strings[0], Integer.parseInt(strings[1]));
+//                })
+//                .groupByKey()
+//                .mapToPair(e -> new Tuple2<>(e._1, IteratorUtils.toList(e._2.iterator()).subList(0, 3)))
+//                .foreach(e -> System.out.println(e._1 + " " + e._2));
+//        jsc.stop();
+    
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local");
+        JavaSparkContext jsc = new JavaSparkContext(sparkConf);
         jsc.textFile("file:\\D:\\sparkData\\demo.txt")
                 .mapToPair(line ->{
-                    String[] strings = line.split(",");
-                    return new Tuple2<>(strings[0], Integer.parseInt(strings[1]));
+                    String[] split = line.split(",");
+                    return new Tuple2<>(split[0], Integer.parseInt(split[1]));
                 })
                 .groupByKey()
                 .mapToPair(e -> new Tuple2<>(e._1, IteratorUtils.toList(e._2.iterator()).subList(0, 3)))
-                .foreach(e -> System.out.println(e._1 + " " + e._2));
+                .foreach(e -> {
+                    System.out.print(e._1 + "  ");
+                    e._2.forEach(t -> System.out.print(t + " "));
+                    System.out.println();
+                });
         jsc.stop();
-
+        
     }
-
 }
 
 /**
@@ -41,3 +56,8 @@ public class GroupTopN {
  * class2 67
  * class2 77
  */
+
+
+//class3  2 11 14
+//class4  12 15 6
+//class2  1 13 7

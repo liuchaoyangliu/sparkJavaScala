@@ -1,6 +1,8 @@
 package com.lcy.java.spark.rdd.wordCount;
 
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import scala.Tuple2;
 
@@ -13,8 +15,9 @@ public class WordCount2 {
         // 第一步：创建SparkConf对象,设置相关配置信息
         SparkConf conf = new SparkConf().setAppName("wordcount").setMaster("local");
         JavaSparkContext sc = new JavaSparkContext(conf);
+        sc.setLogLevel("ERROR");
 
-         // 最简写法
+        // 最简写法
         sc.textFile("file:\\D:\\sparkData\\data2.txt")
                 .flatMap( e -> Arrays.asList(e.split(" ")).iterator() )
                 .mapToPair( e -> new Tuple2<>(e, 1))
@@ -22,7 +25,7 @@ public class WordCount2 {
                 .foreach((e) -> System.out.println(e._1 + "  " + e._2));
 
         sc.close();
-
+        
     }
 
 }

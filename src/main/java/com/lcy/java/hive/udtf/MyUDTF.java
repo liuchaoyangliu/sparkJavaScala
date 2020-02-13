@@ -17,16 +17,16 @@ import java.util.List;
 
 public class MyUDTF extends GenericUDTF {
 
-    private List<String> dataList = new ArrayList<String>();
+    private List<String> dataList = new ArrayList<>();
 
     @Override
     public StructObjectInspector initialize(StructObjectInspector argOIs) throws UDFArgumentException {
 
         // 可以多字段输出，这里只设置一个字段
-        List<String> fieldNames = new ArrayList<String>();
+        List<String> fieldNames = new ArrayList<>();
         fieldNames.add("word"); // 字段默认名字(列名)
 
-        List<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
+        List<ObjectInspector> fieldOIs = new ArrayList<>();
         fieldOIs.add(PrimitiveObjectInspectorFactory.javaStringObjectInspector); // 输出数据的类型
 
         return ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs);
