@@ -6,6 +6,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
 public class CounterInterceptor implements ProducerInterceptor<String, String> {
+    
     int success;
     int error;
     

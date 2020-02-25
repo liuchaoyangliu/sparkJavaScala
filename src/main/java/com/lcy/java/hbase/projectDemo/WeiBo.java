@@ -221,7 +221,7 @@ public class WeiBo {
             contentTBL.put(put);
             
             //b、向微博收件箱表中加入发布的Rowkey
-          
+            
             //b.1、查询用户关系表，得到当前用户有哪些粉丝
             Table relationsTBL = connection.getTable(TableName.valueOf(TABLE_RELATIONS));
             //b.2、取出目标数据
@@ -237,7 +237,7 @@ public class WeiBo {
             }
             //如果该用户没有粉丝，则直接return
             if (fans.size() <= 0)
-              return;
+                return;
             //开始操作收件箱表
             Table recTBL = connection.getTable(TableName.valueOf(TABLE_RECEIVE_CONTENT_EMAIL));
             List<Put> puts = new ArrayList<>();

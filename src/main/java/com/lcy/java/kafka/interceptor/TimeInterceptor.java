@@ -6,6 +6,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
 public class TimeInterceptor implements ProducerInterceptor<String, String> {
+    
     public TimeInterceptor() {
     }
     
@@ -13,7 +14,7 @@ public class TimeInterceptor implements ProducerInterceptor<String, String> {
     }
     
     public ProducerRecord<String, String> onSend(ProducerRecord<String, String> record) {
-        String value = (String)record.value();
+        String value = record.value();
         return new ProducerRecord(record.topic(), record.partition(), record.key(), System.currentTimeMillis() + "," + value);
     }
     

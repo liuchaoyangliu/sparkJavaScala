@@ -36,8 +36,7 @@ public class Txt2FruitRunner extends Configured implements Tool {
         //创建Job任务
         Job job = Job.getInstance(conf, this.getClass().getSimpleName());
         job.setJarByClass(Txt2FruitRunner.class);
-        Path inPath = new
-                Path("hdfs://hadoop102:9000/input_fruit/fruit.tsv");
+        Path inPath = new Path("hdfs://hadoop102:9000/input_fruit/fruit.tsv");
         FileInputFormat.addInputPath(job, inPath);
         
         //设置Mapper

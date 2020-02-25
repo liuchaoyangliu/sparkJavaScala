@@ -14,12 +14,8 @@ public class HBaseTest {
     private static HBaseAdmin admin = null;
     
     public static void main(String[] args) throws IOException {
-        
-        
-        close();
-        
-    }
     
+    }
     
     static {
         //设置配置文件信息
@@ -42,7 +38,7 @@ public class HBaseTest {
     public static boolean isTableExist(String tableName) throws IOException {
         return admin.tableExists(tableName);
     }
-    
+
     //创建表
     public static void createTable(String tableName, String... columnFamily) throws IOException {
         if (isTableExist(tableName)) {

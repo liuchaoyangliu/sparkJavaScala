@@ -1,13 +1,15 @@
 package com.lcy.java.hbase.mr;
 
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
@@ -18,8 +20,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import java.io.IOException;
-
 public class Fruit2FruitMRRunner extends Configured implements Tool {
     
     public static void main(String[] args) throws Exception {
@@ -29,7 +29,6 @@ public class Fruit2FruitMRRunner extends Configured implements Tool {
     }
     
     //组装Job
-    @Override
     public int run(String[] args) throws Exception {
         //得到Configuration
         Configuration conf = this.getConf();
@@ -48,8 +47,8 @@ public class Fruit2FruitMRRunner extends Configured implements Tool {
                 scan, //scan扫描控制器
                 ReadFruitMapper.class,//设置Mapper类
                 ImmutableBytesWritable.class,//设置Mapper输出key类型
-                Put.class,// 设置Mapper输出value值类型
-                job// 设置给哪个JOB
+                Put.class,//设置Mapper输出value值类型
+                job//设置给哪个JOB
         );
         //设置Reducer
         TableMapReduceUtil.initTableReducerJob("fruit_mr",
@@ -63,6 +62,7 @@ public class Fruit2FruitMRRunner extends Configured implements Tool {
         }
         return isSuccess ? 0 : 1;
     }
+    
     
     class ReadFruitMapper extends
             TableMapper<ImmutableBytesWritable, Put> {
@@ -92,6 +92,7 @@ public class Fruit2FruitMRRunner extends Configured implements Tool {
         }
     }
     
+    
     class WriteFruitMRReducer extends
             TableReducer<ImmutableBytesWritable, Put, NullWritable> {
         @Override
@@ -104,4 +105,6 @@ public class Fruit2FruitMRRunner extends Configured implements Tool {
         }
     }
     
+    
 }
+
