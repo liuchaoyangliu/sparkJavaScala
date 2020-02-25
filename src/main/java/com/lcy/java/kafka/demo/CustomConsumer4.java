@@ -24,23 +24,17 @@ public class CustomConsumer4 {
         
         //创建配置信息
         Properties props = new Properties();
-        
         //Kafka 集群
         props.put("bootstrap.servers", "hadoop102:9092");
-        
         //消费者组，只要 group.id 相同，就属于同一个消费者组
         props.put("group.id", "test");
-        
         //关闭自动提交 offset
         props.put("enable.auto.commit", "false");
-        
         //Key 和 Value 的反序列化类
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        
         //创建一个消费者
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        
         //消费者订阅主题
         consumer.subscribe(Arrays.asList("first"), new ConsumerRebalanceListener() {                          //该方法会在
             // Rebalance 之前调用
@@ -48,13 +42,13 @@ public class CustomConsumer4 {
             public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                 commitOffset(currentOffset);
             }
-            
             //该方法会在 Rebalance 之后调用
             @Override
             public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
                 currentOffset.clear();
                 for (TopicPartition partition : partitions) {
-                    consumer.seek(partition, getOffset(partition));// 定位到最近提交的 offset 位置继续消费
+                    consumer.seek(partition, getOffset(partition));
+                    // 定位到最近提交的 offset 位置继续消费
                 }
             }
         });
@@ -78,4 +72,5 @@ public class CustomConsumer4 {
     private static void commitOffset(Map<TopicPartition, Long> currentOffset) {
     
     }
+    
 }

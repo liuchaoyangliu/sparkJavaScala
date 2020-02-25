@@ -15,7 +15,9 @@ import kafka.javaapi.message.ByteBufferMessageSet;
 import kafka.message.MessageAndOffset;
 
 public class MySimpleConsumer {
+    
     public MySimpleConsumer() {
+    
     }
     
     public static void main(String[] args) {

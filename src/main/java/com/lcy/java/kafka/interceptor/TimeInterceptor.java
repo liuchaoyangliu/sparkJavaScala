@@ -5,23 +5,34 @@ import org.apache.kafka.clients.producer.ProducerInterceptor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
+//增加时间戳拦截器
+
 public class TimeInterceptor implements ProducerInterceptor<String, String> {
     
-    public TimeInterceptor() {
-    }
-    
+    @Override
     public void configure(Map<String, ?> configs) {
+    
     }
     
+    @Override
     public ProducerRecord<String, String> onSend(ProducerRecord<String, String> record) {
-        String value = record.value();
-        return new ProducerRecord(record.topic(), record.partition(), record.key(), System.currentTimeMillis() + "," + value);
+        
+        // 创建一个新的 record，把时间戳写入消息体的最前部
+        return new ProducerRecord(record.topic(),
+                record.partition(),
+                record.timestamp(),
+                record.key(),
+                System.currentTimeMillis() + "," + record.value().toString());
     }
     
+    @Override
     public void onAcknowledgement(RecordMetadata metadata, Exception exception) {
+    
     }
     
+    @Override
     public void close() {
+    
     }
+    
 }
-

@@ -1,4 +1,4 @@
-package com.lcy.java.kafka.demo;
+package com.lcy.java.kafka.interceptor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +12,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 public class InterceptorProducer {
     
     public static void main(String[] args) throws Exception {
+        
         // 1 设置配置信息
         Properties props = new Properties();
         props.put("bootstrap.servers", "hadoop102:9092");
@@ -25,14 +26,20 @@ public class InterceptorProducer {
         // 2 构建拦截链
         List<String> interceptors = new ArrayList<>();
         
-        interceptors.add("com.atguigu.kafka.interceptor.TimeInterce ptor");
-        interceptors.add("com.atguigu.kafka.interceptor.CounterInte rceptor");
+        interceptors.add("com.lcy.java.kafka.interceptor.TimeInterceptor");
+        interceptors.add("com.lcy.java.kafka.interceptor.CounterInterceptor");
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, interceptors);
         String topic = " first ";
-        Producer<String, String> producer = new KafkaProducer<>(props);      // 3 发送消息" +
+        Producer<String, String> producer = new KafkaProducer<>(props);
+        // 3 发送消息" +
         for (int i = 0; i < 10; i++) {
-            ProducerRecord<String, String> record = new ProducerRecord<>(topic, " message " + i);
+            ProducerRecord<String, String> record =
+                    new ProducerRecord<>(topic, " message " + i);
             producer.send(record);
-        }       // 4 一定要关闭 producer，这样才会调用 interceptor 的 close 方法   producer.close();
+        }
+        // 4 一定要关闭 producer，这样才会调用 interceptor 的 close 方法
+        producer.close();
+        
     }
+    
 }

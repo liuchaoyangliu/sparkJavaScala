@@ -15,21 +15,14 @@ public class CustomProducer2 {
     
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         
-        
         Properties props = new Properties();
         
         props.put("bootstrap.servers", "hadoop102:9092");//kafka 集 群，broker-list
-        
-        props.put("acks", "all");
-        //重试次数
-        props.put("retries", 1);
-        //批次大小
-        props.put("batch.size", 16384);
-        //等待时间
-        props.put("linger.ms", 1);
-        //RecordAccumulator 缓 冲区大小
-        props.put("buffer.memory", 33554432);
-        
+        props.put("acks", "all"); //ack应答级别
+        props.put("retries", 1);//重试次数
+        props.put("batch.size", 16384);//批次大小
+        props.put("linger.ms", 1);//等待时间
+        props.put("buffer.memory", 33554432);//RecordAccumulator 缓冲区大小
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         
@@ -42,8 +35,7 @@ public class CustomProducer2 {
                         @Override
                         public void
                         onCompletion(RecordMetadata metadata, Exception exception) {
-                            if (exception
-                                    == null) {
+                            if (exception == null) {
                                 System.out.println("success->" + metadata.offset());
                             } else {
                                 exception.printStackTrace();
@@ -53,4 +45,34 @@ public class CustomProducer2 {
         }
         producer.close();
     }
+    public void demo(){
+        Properties properties = new Properties();
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        properties.put(ProducerConfig.ACKS_CONFIG, "all");
+        properties.put(ProducerConfig.RETRIES_CONFIG, 1);
+        properties.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+        properties.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                "org.apache.kafka.common.serialization.StringSerializer");
+        
+        KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(properties);
+        for (int i = 0; i < 10; i++) {
+            kafkaProducer.send(new ProducerRecord<>("first",
+                    Integer.toString(i),
+                    Integer.toString(i)), (metadata, exception) -> {
+                        if(exception == null){
+                            System.out.println("success" + metadata.offset());
+                        }else {
+                            exception.printStackTrace();
+                        }
+                    });
+        }
+        kafkaProducer.close();
+    
+    }
+    
+    
 }
