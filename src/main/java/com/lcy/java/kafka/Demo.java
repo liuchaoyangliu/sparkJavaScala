@@ -18,6 +18,11 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
+/**
+ * 较复杂案例，未看懂
+ */
+
 public class Demo {
     
     public static void main(String[] args) throws InterruptedException {
@@ -41,11 +46,12 @@ public class Demo {
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         Producer<String, String> producer = new KafkaProducer<>(props);
         for (int i = 0; i < 100; i++)
-            producer.send(new ProducerRecord<String, String>("mytopic1", Integer.toString(i), "dd:" + i));
+            producer.send(new ProducerRecord<>("mytopic1", Integer.toString(i), "dd:" + i));
         //Thread.sleep(1000000);
         producer.close();
     }
     
+    //事务模式
     public void transactional() {
         Properties props = new Properties();
         props.put("bootstrap.servers", "hadoop01:9092,hadoop02:9092,hadoop03:9092");
@@ -77,10 +83,10 @@ public class Demo {
         producer.close();
     }
     
+    //自定义分区类(Partitioner)
     class DefaultPartitioner implements Partitioner {
         
-        private final ConcurrentMap<String, AtomicInteger> topicCounterMap =
-                new ConcurrentHashMap();
+        private final ConcurrentMap<String, AtomicInteger> topicCounterMap = new ConcurrentHashMap();
         
         //需要覆盖的方法
         public DefaultPartitioner() {
@@ -150,7 +156,6 @@ public class Demo {
         优点：消费快，适用于数据一致性弱的业务场景
         缺点：消息很容易丢失
      */
-    
     public void autoCommit() {
         Properties props = new Properties();
         //设置kafka集群的地址
@@ -176,7 +181,7 @@ public class Demo {
         }
     }
     
-    
+    //.偏移量-手动按消费者提交
     public void munualCommit() {
         Properties props = new Properties();
         //设置kafka集群的地址
@@ -239,7 +244,8 @@ public class Demo {
                     /*
                         提交的偏移量应该始终是您的应用程序将要读取的下一条消息的偏移量。因此，在调用commitSync（）时，
                         offset应该是处理的最后一条消息的偏移量加1
-                        为什么这里要加上面不加喃？因为上面Kafka能够自动帮我们维护所有分区的偏移量设置，有兴趣的同学可以看看SubscriptionState.allConsumed()就知道
+                        为什么这里要加上面不加喃？因为上面Kafka能够自动帮我们维护所有分区的偏移量设置，
+                        有兴趣的同学可以看看SubscriptionState.allConsumed()就知道
                      */
                     consumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(lastOffset + 1)));
                 }
@@ -274,7 +280,10 @@ public class Demo {
                 for (TopicPartition partition : records.partitions()) {
                     List<ConsumerRecord<String, String>> partitionRecords = records.records(partition);
                     for (ConsumerRecord<String, String> record : partitionRecords) {
-                        System.out.println("partition: " + partition.partition() + " , " + record.offset() + ": " + record.value());
+                        System.out.println("partition: " +
+                                partition.partition() + " , " +
+                                record.offset() + ": " +
+                                record.value());
                     }
                     long lastOffset = partitionRecords.get(partitionRecords.size() - 1).offset();
                     consumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(lastOffset + 1)));
@@ -463,19 +472,20 @@ public class Demo {
         //实例化一个消费者
         final List<ConsumerRunner> consumers = new ArrayList<>();
         final List<KafkaConsumer<String, String>> kafkaConsumers = new ArrayList<>();
-        for(int i = 0;i < 2;i++){
-            kafkaConsumers.add(new KafkaConsumer<String, String>(props));
+        for (int i = 0; i < 2; i++) {
+            kafkaConsumers.add(new KafkaConsumer<>(props));
         }
         final CountDownLatch latch = new CountDownLatch(2);
         final ExecutorService executor = Executors.newFixedThreadPool(2);
-        for(int i = 0;i < 2;i++){
-            ConsumerRunner c = new ConsumerRunner(kafkaConsumers.get(i),latch);
+        for (int i = 0; i < 2; i++) {
+            ConsumerRunner c = new ConsumerRunner(kafkaConsumers.get(i), latch);
             consumers.add(c);
             executor.submit(c);
         }
 
         /*
-            这个方法的意思就是在jvm中增加一个关闭的钩子，当jvm关闭的时候，会执行系统中已经设置的所有通过方法addShutdownHook添加的钩子，当系统执行完这些钩子后，jvm才会关闭
+            这个方法的意思就是在jvm中增加一个关闭的钩子，当jvm关闭的时候，会执行系统中已经设置的所有通过方法addShutdownHook添加的钩子，
+            当系统执行完这些钩子后，jvm才会关闭
             所以这些钩子可以在jvm关闭的时候进行内存清理、对象销毁、关闭连接等操作
          */
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -493,7 +503,7 @@ public class Demo {
                 }
             }
         });
-
+        
         try {
             latch.await();
         } catch (InterruptedException e) {
