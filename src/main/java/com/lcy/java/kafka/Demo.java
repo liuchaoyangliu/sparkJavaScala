@@ -348,7 +348,7 @@ public class Demo {
         private Consumer<?, ?> consumer;
         
         //实例化Listener的时候将Consumer传进来
-        public MyConsumerRebalanceListener(Consumer<?, ?> consumer) {
+        MyConsumerRebalanceListener(Consumer<?, ?> consumer) {
             this.consumer = consumer;
         }
         
@@ -424,7 +424,7 @@ public class Demo {
         private final KafkaConsumer<String, String> consumer;
         private final CountDownLatch latch;
         
-        public ConsumerRunner(KafkaConsumer<String, String> consumer, CountDownLatch latch) {
+        ConsumerRunner(KafkaConsumer<String, String> consumer, CountDownLatch latch) {
             this.consumer = consumer;
             this.latch = latch;
         }
@@ -448,7 +448,7 @@ public class Demo {
             }
         }
         
-        public void shutdown() {
+        void shutdown() {
             System.out.println("close ConsumerRunner");
             closed.set(true);
             consumer.wakeup();
