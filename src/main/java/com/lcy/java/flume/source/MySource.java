@@ -8,6 +8,7 @@ import org.apache.flume.event.SimpleEvent;
 import org.apache.flume.source.AbstractSource;
 
 public class MySource extends AbstractSource implements Configurable, PollableSource {
+    
     private String prefix;
     private String subfix;
     
@@ -50,4 +51,5 @@ public class MySource extends AbstractSource implements Configurable, PollableSo
     public long getMaxBackOffSleepInterval() {
         return 0L;
     }
+    
 }

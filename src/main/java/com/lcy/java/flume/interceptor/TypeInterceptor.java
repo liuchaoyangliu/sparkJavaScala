@@ -9,9 +9,11 @@ import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
 
 public class TypeInterceptor implements Interceptor {
+    
     private List<Event> addHeaderEvents;
     
     private TypeInterceptor() {
+    
     }
     
     public void initialize() {
@@ -45,7 +47,7 @@ public class TypeInterceptor implements Interceptor {
     public void close() {
     }
     
-    public static class Builder implements org.apache.flume.interceptor.Interceptor.Builder {
+    public static class Builder implements Interceptor.Builder {
         public Builder() {
         }
         
@@ -56,5 +58,6 @@ public class TypeInterceptor implements Interceptor {
         public void configure(Context context) {
         }
     }
+    
 }
 

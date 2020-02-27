@@ -35,8 +35,7 @@ public class MySink2 extends AbstractSink implements Configurable {
         //读取 Channel 中的事件，直到读取到事件结束循环
         while (true) {
             event = ch.take();
-            if (event !=
-                    null) {
+            if (event != null) {
                 break;
             }
         }
@@ -52,7 +51,6 @@ public class MySink2 extends AbstractSink implements Configurable {
             txn.rollback();
             status = Status.BACKOFF;
         } finally {
-            
             //关闭事务
             txn.close();
         }
