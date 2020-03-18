@@ -5,22 +5,27 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.api.java.function.VoidFunction;
 import scala.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class TransFormation2 {
-
-    static SparkConf conf = null;
-    static JavaSparkContext sc = null;
+    
+    private static SparkConf conf;
+    private static JavaSparkContext sc;
+    
     static {
         conf = new SparkConf();
         conf.setMaster("local").setAppName("SparkStudy");
         sc = new JavaSparkContext(conf);
+        sc.setLogLevel("ERROR");
     }
-
+    
     public static void main(String[] args) {
 
 //        map();
@@ -41,13 +46,13 @@ public class TransFormation2 {
 //        replication();
 //        repartitionAndSortWithinPartitions();
 //        cogroup();
-//        sortByKey();
-        aggregateByKey();
-
+        sortByKey();
+//        aggregateByKey();
+    
     }
-
-    public static void map(){
-        List<String> list = Arrays.asList("张无忌","赵敏","周芷若");
+    
+    public static void map() {
+        List<String> list = Arrays.asList("张无忌", "赵敏", "周芷若");
 //        System.out.println(list.size());
 //        JavaRDD<String> listRDD = sc.parallelize(list);
 //
@@ -63,16 +68,21 @@ public class TransFormation2 {
 //                System.out.println(s);
 //            }
 //        });
-
+        
+        JavaRDD<String> parallelize = sc.parallelize(list);
+        JavaRDD<String> map = parallelize.map(e -> "hell " + e);
+        map.foreach(e -> System.out.println(e));
+        sc.stop();
+        
         sc.parallelize(list)
                 .map(name -> "Hello " + name)
                 .foreach(s -> System.out.println(s));
         sc.stop();
     }
-
-
-    public static void flatMap(){
-        List<String> list = Arrays.asList("张无忌 赵敏","宋青书 周芷若");
+    
+    
+    public static void flatMap() {
+        List<String> list = Arrays.asList("张无忌 赵敏", "宋青书 周芷若");
 //        JavaRDD<String> listRDD = sc.parallelize(list);
 //
 //        JavaRDD<String> nameRDD = listRDD
@@ -95,28 +105,33 @@ public class TransFormation2 {
 //                System.out.println(s);
 //            }
 //        });
-
-
+        JavaRDD<String> javaRDD = sc.parallelize(list);
+        JavaRDD<String> stringJavaRDD = javaRDD.flatMap(e -> Arrays.asList(e.split(" ")).iterator());
+        JavaRDD<Tuple2> map = stringJavaRDD.map(e -> new Tuple2(e, 1));
+        map.foreach(e -> System.out.println(e));
+        sc.stop();
+        
+        
         JavaRDD<String> listRDD = sc.parallelize(list);
-
+        
         listRDD.flatMap(line -> Arrays.asList(line.split(" ")).iterator())
                 .map(name -> "Hello " + name)
                 .foreach(s -> System.out.println(s));
         sc.stop();
     }
-
-
+    
+    
     /**
      * map:
-     *    一条数据一条数据的处理（文件系统，数据库等等）
+     * 一条数据一条数据的处理（文件系统，数据库等等）
      * mapPartitions：
-     *    一次获取的是一个分区的数据（hdfs）
-     *    正常情况下，mapPartitions 是一个高性能的算子
-     *    因为每次处理的是一个分区的数据，减少了去获取数据的次数。
-     *
-     *    但是如果我们的分区如果设置得不合理，有可能导致每个分区里面的数据量过大。
+     * 一次获取的是一个分区的数据（hdfs）
+     * 正常情况下，mapPartitions 是一个高性能的算子
+     * 因为每次处理的是一个分区的数据，减少了去获取数据的次数。
+     * <p>
+     * 但是如果我们的分区如果设置得不合理，有可能导致每个分区里面的数据量过大。
      */
-    public static void mapPartitions(){
+    public static void mapPartitions() {
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6);
         //参数二代表这个rdd里面有两个分区
 //        JavaRDD<Integer> listRDD = sc.parallelize(list,2);
@@ -136,20 +151,34 @@ public class TransFormation2 {
 //                System.out.println(s);
 //            }
 //        });
-
-
-        sc.parallelize(list,2)
+        
+        JavaRDD<Integer> javaRDD = sc.parallelize(list, 3);
+        JavaRDD<String> stringJavaRDD = javaRDD.mapPartitions(iterator -> {
+            ArrayList<String> array = new ArrayList<>();
+            while (iterator.hasNext()) {
+                array.add("hello" + iterator.next());
+            }
+            return array.iterator();
+        });
+        
+        stringJavaRDD.foreach(e -> System.out.println(e));
+        sc.stop();
+        
+        sc.parallelize(list, 2)
                 .mapPartitions(iterator -> {
                     ArrayList<String> array = new ArrayList<>();
-                    while (iterator.hasNext()){
+                    while (iterator.hasNext()) {
                         array.add("hello " + iterator.next());
                     }
                     return array.iterator();
                 }).foreach(s -> System.out.println(s));
         sc.stop();
     }
-    /** 取和处理的就是一个分区的数据,并且知道处理的分区的分区号是啥？  */
-    public static void mapPartitionsWithIndex(){
+    
+    /**
+     * 取和处理的就是一个分区的数据,并且知道处理的分区的分区号是啥？
+     */
+    public static void mapPartitionsWithIndex() {
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8);
 //        JavaRDD<Integer> listRDD = sc.parallelize(list, 2);
 //        listRDD.mapPartitionsWithIndex(new Function2<Integer, Iterator<Integer>, Iterator<String>>() {
@@ -168,20 +197,32 @@ public class TransFormation2 {
 //                        System.out.println(s);
 //                    }
 //                });
-
+        
+        JavaRDD<Integer> javaRDD = sc.parallelize(list);
+        JavaRDD<String> stringJavaRDD = javaRDD.mapPartitionsWithIndex((index, iterator) -> {
+            ArrayList<String> array = new ArrayList<>();
+            while (iterator.hasNext()) {
+                array.add(index + " _ " + iterator.next());
+            }
+            return array.iterator();
+        }, true);
+        stringJavaRDD.foreach(e -> System.out.println(e));
+        sc.stop();
+        
+        
         sc.parallelize(list, 2)
                 .mapPartitionsWithIndex((index, iterator) -> {
-            ArrayList<String> list1 = new ArrayList<>();
-            while (iterator.hasNext()){
-                list1.add(index+"_"+iterator.next());
-            }
-            return list1.iterator();
-        },true)
+                    ArrayList<String> list1 = new ArrayList<>();
+                    while (iterator.hasNext()) {
+                        list1.add(index + "_" + iterator.next());
+                    }
+                    return list1.iterator();
+                }, true)
                 .foreach(s -> System.out.println(s));
         sc.stop();
     }
-
-    public static void reduce(){
+    
+    public static void reduce() {
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6);
 //        JavaRDD<Integer> listRDD = sc.parallelize(list);
 //
@@ -192,14 +233,14 @@ public class TransFormation2 {
 //            }
 //        });
 //        System.out.println(result);
-
+        
         JavaRDD<Integer> listRDD = sc.parallelize(list);
-
+        
         Integer result = listRDD.reduce((v1, v2) -> v1 + v2);
         System.out.println(result);
     }
-
-    public static void reduceByKey(){
+    
+    public static void reduceByKey() {
 //        List<Tuple2<String, Integer>> list = Arrays.asList(
 //                new Tuple2<String, Integer>("武当", 99),
 //                new Tuple2<String, Integer>("少林", 97),
@@ -220,9 +261,8 @@ public class TransFormation2 {
 //                System.out.println("门派: " + tuple._1 + "->" + tuple._2);
 //            }
 //        });
-
-
-
+        
+        
         List<Tuple2<String, Integer>> list = Arrays.asList(
                 new Tuple2<>("武当", 99),
                 new Tuple2<>("少林", 97),
@@ -232,15 +272,16 @@ public class TransFormation2 {
         sc.parallelizePairs(list)
                 .reduceByKey((i1, i2) -> i1 + i2)
                 .foreach(tuple -> System.out.println("门派: " + tuple._1 + "->" + tuple._2));
-
+        
         sc.stop();
     }
-
-
-    /** 当要将两个RDD合并时，便要用到union和join，其中union只是简单的将两个RDD累加起来，
+    
+    
+    /**
+     * 当要将两个RDD合并时，便要用到union和join，其中union只是简单的将两个RDD累加起来，
      * 可以看做List的addAll方法。就想List中一样，当使用union及join时，必须保证两个RDD的泛型是一致的。
      */
-    public static void union(){
+    public static void union() {
 //        final List<Integer> list1 = Arrays.asList(1, 2, 3, 4);
 //        final List<Integer> list2 = Arrays.asList(3, 4, 5, 6);
 //        final JavaRDD<Integer> rdd1 = sc.parallelize(list1);
@@ -252,17 +293,17 @@ public class TransFormation2 {
 //                        System.out.println(number + "");
 //                    }
 //                });
-
-
+        
+        
         final JavaRDD<Integer> rdd1 = sc.parallelize(Arrays.asList(1, 2, 3, 4));
         final JavaRDD<Integer> rdd2 = sc.parallelize(Arrays.asList(3, 4, 5, 6));
         rdd1.union(rdd2)
                 .foreach(number -> System.out.println(number));
         sc.stop();
     }
-
-    public static void groupByKey(){
-        List<Tuple2<String,String>> list = Arrays.asList(
+    
+    public static void groupByKey() {
+        List<Tuple2<String, String>> list = Arrays.asList(
                 new Tuple2("武当", "张三丰"),
                 new Tuple2("峨眉", "灭绝师太"),
                 new Tuple2("武当", "宋青书"),
@@ -283,16 +324,19 @@ public class TransFormation2 {
 //                System.out.println("门派:"+menpai + "人员:"+people);
 //            }
 //        });
-
-
+        
         sc.parallelizePairs(list)
                 .groupByKey()
-                .foreach(tuple ->System.out.println(tuple));
+                .foreach(tuple -> System.out.println(tuple));
         sc.stop();
+//        (峨眉,[灭绝师太, 周芷若])
+//        (武当,[张三丰, 宋青书])
     }
-
-    /** join是将两个PairRDD合并，并将有相同key的元素分为一组，可以理解为groupByKey和Union的结合 */
-    public static void join(){
+    
+    /**
+     * join是将两个PairRDD合并，并将有相同key的元素分为一组，可以理解为groupByKey和Union的结合
+     */
+    public static void join() {
         final List<Tuple2<Integer, String>> names = Arrays.asList(
                 new Tuple2<>(1, "东方不败"),
                 new Tuple2<>(2, "令狐冲"),
@@ -303,7 +347,7 @@ public class TransFormation2 {
                 new Tuple2<>(2, 98),
                 new Tuple2<>(3, 97)
         );
-
+        
         final JavaPairRDD<Integer, String> nemesrdd = sc.parallelizePairs(names);
         final JavaPairRDD<Integer, Integer> scoresrdd = sc.parallelizePairs(scores);
 
@@ -314,14 +358,17 @@ public class TransFormation2 {
 //                System.out.println("学号：" + tuple._1 + " 名字："+tuple._2._1 + " 分数："+tuple._2._2);
 //            }
 //        });
-
+        
         nemesrdd.join(scoresrdd).foreach(value -> System.out.println(value));
         sc.stop();
+//        (1,(东方不败,99))
+//        (3,(林平之,97))
+//        (2,(令狐冲,98))
     }
-
-    public static void sample(){
+    
+    public static void sample() {
         ArrayList<Integer> list = new ArrayList<>();
-        for(int i=1;i<=100;i++){
+        for (int i = 1; i <= 100; i++) {
             list.add(i);
         }
 //        JavaRDD<Integer> listRDD = sc.parallelize(list);
@@ -342,24 +389,33 @@ public class TransFormation2 {
 //                System.out.print(num+" ");
 //            }
 //        });
-
-
+        
+        
         sc.parallelize(list)
-                .sample(false, 0.1,0)
+                .sample(false, 0.1, 0)
                 .foreach(num -> System.out.println(num));
         sc.stop();
     }
-
-    /** cartesian是用于求笛卡尔积的 */
-    public static void cartesian(){
+    
+    /**
+     * cartesian是用于求笛卡尔积的
+     */
+    public static void cartesian() {
         List<String> list1 = Arrays.asList("A", "B");
         List<Integer> list2 = Arrays.asList(1, 2, 3);
         JavaRDD<String> list1RDD = sc.parallelize(list1);
         JavaRDD<Integer> list2RDD = sc.parallelize(list2);
         list1RDD.cartesian(list2RDD).foreach(tuple -> System.out.println(tuple));
+        sc.stop();
+//        (A,1)
+//        (A,2)
+//        (A,3)
+//        (B,1)
+//        (B,2)
+//        (B,3)
     }
-
-    public static void filter(){
+    
+    public static void filter() {
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 //        JavaRDD<Integer> listRDD = sc.parallelize(list);
 //        JavaRDD<Integer> filterRDD = listRDD.filter(new Function<Integer, Boolean>() {
@@ -374,16 +430,16 @@ public class TransFormation2 {
 //                System.out.print(num + " ");
 //            }
 //        });
-
+        
         sc.parallelize(list)
                 .filter(num -> num % 2 == 0)
                 .foreach(num -> System.out.print(num + " "));
         sc.stop();
-
+        
     }
-
-
-    public static void distinct(){
+    
+    
+    public static void distinct() {
         List<Integer> list = Arrays.asList(1, 1, 2, 2, 3, 3, 4, 5);
 //        JavaRDD<Integer> listRDD  = (JavaRDD<Integer>) sc.parallelize(list);
 //        JavaRDD<Integer> distinctRDD = listRDD.distinct();
@@ -393,14 +449,15 @@ public class TransFormation2 {
 //                System.out.println(num);
 //            }
 //        });
-
+        
         sc.parallelize(list)
                 .distinct()
                 .foreach(num -> System.out.println(num));
         sc.stop();
     }
-
-    public static void intersection(){
+    
+    //求交集
+    public static void intersection() {
         List<Integer> list1 = Arrays.asList(1, 2, 3, 4);
         List<Integer> list2 = Arrays.asList(3, 4, 5, 6);
         JavaRDD<Integer> list1RDD = sc.parallelize(list1);
@@ -411,15 +468,17 @@ public class TransFormation2 {
 //                System.out.println(num);
 //            }
 //        });
-
+        
         list1RDD.intersection(list2RDD)
                 .foreach(num -> System.out.println(num));
         sc.stop();
-
+        
     }
-
-    /** 分区数由多  -》 变少 */
-    public static void coalesce(){
+    
+    /**
+     * 分区数由多  -》 变少
+     */
+    public static void coalesce() {
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
 //        JavaRDD<Integer> listRDD = sc.parallelize(list, 3);
 //        listRDD.coalesce(1).foreach(new VoidFunction<Integer>() {
@@ -428,15 +487,17 @@ public class TransFormation2 {
 //                System.out.print(num);
 //            }
 //        });
-
+        
         sc.parallelize(list, 3)
                 .coalesce(1)
                 .foreach(num -> System.out.print(num));
         sc.stop();
     }
-
-    /**  进行重分区，解决的问题：本来分区数少  -》 增加分区数 */
-    public static void replication(){
+    
+    /**
+     * 进行重分区，解决的问题：本来分区数少  -》 增加分区数
+     */
+    public static void replication() {
         List<Integer> list = Arrays.asList(1, 2, 3, 4);
 //        JavaRDD<Integer> listRDD = sc.parallelize(list, 1);
 //        listRDD.repartition(2).foreach(new VoidFunction<Integer>() {
@@ -445,18 +506,17 @@ public class TransFormation2 {
 //                System.out.println(num);
 //            }
 //        });
-
+        
         sc.parallelize(list, 1)
                 .repartition(2).foreach(num -> System.out.println(num));
         sc.stop();
     }
-
+    
     /**
-     *repartitionAndSortWithinPartitions函数是repartition函数的变种，与repartition函数不同的是，
+     * repartitionAndSortWithinPartitions函数是repartition函数的变种，与repartition函数不同的是，
      * repartitionAndSortWithinPartitions在给定的partitioner内部进行排序，性能比repartition要高。
-     *
      */
-    public static void repartitionAndSortWithinPartitions(){
+    public static void repartitionAndSortWithinPartitions() {
         List<Integer> list = Arrays.asList(1, 3, 55, 77, 33, 5, 23);
 //        JavaRDD<Integer> listRDD = sc.parallelize(list, 1);
 //        JavaPairRDD<Integer, Integer> pairRDD = listRDD.mapToPair(new PairFunction<Integer, Integer, Integer>() {
@@ -482,9 +542,11 @@ public class TransFormation2 {
 //                return 2;
 //            }
 //        });
-//        parationRDD.mapPartitionsWithIndex(new Function2<Integer, Iterator<Tuple2<Integer, Integer>>, Iterator<String>>() {
+//        parationRDD.mapPartitionsWithIndex(new Function2<Integer, Iterator<Tuple2<Integer, Integer>>,
+//        Iterator<String>>() {
 //            @Override
-//            public  Iterator<String> call(Integer index, Iterator<Tuple2<Integer, Integer>> iterator) throws Exception {
+//            public  Iterator<String> call(Integer index, Iterator<Tuple2<Integer, Integer>> iterator) throws
+//            Exception {
 //                final ArrayList<String> list1 = new ArrayList<>();
 //                while (iterator.hasNext()){
 //                    list1.add(index+"_"+iterator.next());
@@ -497,72 +559,107 @@ public class TransFormation2 {
 //                System.out.println(s);
 //            }
 //        });
-
-        sc.parallelize(list, 1)
-                .mapToPair( num -> new Tuple2<>(num, num))
+        
+        sc.parallelize(list, 2)
+                .mapToPair(e -> new Tuple2<>(e, e))
                 .repartitionAndSortWithinPartitions(new Partitioner() {
-            public int getPartition(Object key) {
-                Integer index = Integer.valueOf(key.toString());
-                if (index % 2 == 0) {
-                    return 0;
-                } else {
-                    return 1;
-                }
-
-            }
-            public int numPartitions() {
-                return 2;
-            }
-        })
+                    @Override
+                    public int numPartitions() {
+                        return 2;
+                    }
+                    
+                    @Override
+                    public int getPartition(Object key) {
+                        Integer integer = Integer.valueOf(key.toString());
+                        if (integer % 2 == 0) {
+                            return 0;
+                        } else {
+                            return 1;
+                        }
+                    }
+                })
                 .mapPartitionsWithIndex((index, iterator) -> {
-            final ArrayList<String> list1 = new ArrayList<>();
-            while (iterator.hasNext()){
-                list1.add(index+"_"+iterator.next());
-            }
-            return list1.iterator();
-        },false).foreach(s -> System.out.println(s));
-
+                    ArrayList<String> list1 = new ArrayList<>();
+                    while (iterator.hasNext()) {
+                        list1.add(index + " _ " + iterator.next());
+                    }
+                    return list1.iterator();
+                }, false)
+                .foreach(e -> System.out.println(e));
+        sc.stop();
+        
+        sc.parallelize(list, 1)
+                .mapToPair(num -> new Tuple2<>(num, num))
+                .repartitionAndSortWithinPartitions(new Partitioner() {
+                    public int getPartition(Object key) {
+                        Integer index = Integer.valueOf(key.toString());
+                        if (index % 2 == 0) {
+                            return 0;
+                        } else {
+                            return 1;
+                        }
+                        
+                    }
+                    
+                    public int numPartitions() {
+                        return 2;
+                    }
+                })
+                .mapPartitionsWithIndex((index, iterator) -> {
+                    final ArrayList<String> list1 = new ArrayList<>();
+                    while (iterator.hasNext()) {
+                        list1.add(index + "_" + iterator.next());
+                    }
+                    return list1.iterator();
+                }, false).foreach(s -> System.out.println(s));
+        sc.stop();
     }
-
-    /** 对两个RDD中的KV元素，每个RDD中相同key中的元素分别聚合成一个集合。
+    
+    /**
+     * 对两个RDD中的KV元素，每个RDD中相同key中的元素分别聚合成一个集合。
      * 与reduceByKey不同的是针对两个RDD中相同的key的元素进行合并。
      */
-    public static void cogroup(){
+    public static void cogroup() {
         List<Tuple2<Integer, String>> list1 = Arrays.asList(
                 new Tuple2<>(1, "www"),
                 new Tuple2<>(2, "bbs")
         );
-
+        
         List<Tuple2<Integer, String>> list2 = Arrays.asList(
                 new Tuple2<>(1, "cnblog"),
                 new Tuple2<>(2, "cnblog"),
                 new Tuple2<>(3, "very")
         );
-
+        
         List<Tuple2<Integer, String>> list3 = Arrays.asList(
                 new Tuple2<>(1, "com"),
                 new Tuple2<>(2, "com"),
                 new Tuple2<>(3, "good")
         );
-
+        
         JavaPairRDD<Integer, String> list1RDD = sc.parallelizePairs(list1);
         JavaPairRDD<Integer, String> list2RDD = sc.parallelizePairs(list2);
         JavaPairRDD<Integer, String> list3RDD = sc.parallelizePairs(list3);
 
-//        list1RDD.cogroup(list2RDD,list3RDD).foreach(new VoidFunction<Tuple2<Integer, Tuple3<Iterable<String>, Iterable<String>, Iterable<String>>>>() {
+//        list1RDD.cogroup(list2RDD,list3RDD).foreach(new VoidFunction<Tuple2<Integer, Tuple3<Iterable<String>,
+//        Iterable<String>, Iterable<String>>>>() {
 //            @Override
-//            public void call(Tuple2<Integer, Tuple3<Iterable<String>, Iterable<String>, Iterable<String>>> tuple) throws Exception {
+//            public void call(Tuple2<Integer, Tuple3<Iterable<String>, Iterable<String>, Iterable<String>>> tuple)
+//            throws Exception {
 //                System.out.println(tuple._1+" " +tuple._2._1() +" "+tuple._2._2()+" "+tuple._2._3());
 //            }
 //        });
-
-        list1RDD.cogroup(list2RDD,list3RDD)
+        
+        list1RDD.cogroup(list2RDD, list3RDD)
                 .foreach(tuple -> System.out.println(tuple));
         sc.stop();
 
+//        (1,([www],[cnblog],[com]))
+//        (3,([],[very],[good]))
+//        (2,([bbs],[cnblog],[com]))
     }
-
-    public static void sortByKey(){
+    
+    public static void sortByKey() {
         List<Tuple2<Integer, String>> list = Arrays.asList(
                 new Tuple2<>(99, "张三丰"),
                 new Tuple2<>(96, "东方不败"),
@@ -581,18 +678,21 @@ public class TransFormation2 {
                 .foreach(tuple -> System.out.println(tuple));
         sc.stop();
 
+//        (99,张三丰)
+//        (98,聂风)
+//        (96,东方不败)
+//        (66,林平之)
     }
-
-
+    
+    
     /**
      * aggregateByKey函数对PairRDD中相同Key的值进行聚合操作，在聚合过程中同样使用了一个中立的初始值。
      * 和aggregate函数类似，aggregateByKey返回值的类型不需要和RDD中value的类型一致。
-     * 因为aggregateByKey是对相同Key中的值进行聚合操作，所以aggregateByKey函数最终返回的类型还是Pair RDD，
+     * 因为aggregateByKey是对相同Key中的值进行聚合操作，所以aggregateByKey函数最终返回的类型还是PairRDD，
      * 对应的结果是Key和聚合好的值；而aggregate函数直接是返回非RDD的结果，这点需要注意。
      * 在实现过程中，定义了三个aggregateByKey函数原型，但最终调用的aggregateByKey函数都一致。
-     *
      */
-    public static void aggregateByKey(){
+    public static void aggregateByKey() {
         List<String> list = Arrays.asList("you,jump", "i,jump");
 //        JavaRDD<String> listRDD = sc.parallelize(list);
 //        listRDD.flatMap(new FlatMapFunction<String, String>() {
@@ -621,18 +721,45 @@ public class TransFormation2 {
 //                System.out.println(tuple._1+"->"+tuple._2);
 //            }
 //        });
-
-
+        
         JavaRDD<String> listRDD = sc.parallelize(list);
         listRDD.flatMap(line -> Arrays.asList(line.split(",")).iterator())
-                .mapToPair(word -> new Tuple2<>(word,1))
+                .mapToPair(word -> new Tuple2<>(word, 1))
                 .aggregateByKey(
                         0,
                         (i1, i2) -> i1 + i2,
-                        (i1, i2) -> i1+i2)
+                        (i1, i2) -> i1 + i2)
                 .foreach(tuple -> System.out.println(tuple));
         sc.stop();
     }
-
-
+    
+    public void demo() {
+        
+        List<Tuple2<String, Integer>> abk = Arrays.asList(
+                new Tuple2<>("class1", 1),
+                new Tuple2<>("class1", 2),
+                new Tuple2<>("class1", 4),
+                new Tuple2<>("class2", 3),
+                new Tuple2<>("class2", 1),
+                new Tuple2<>("class2", 5));
+        JavaPairRDD<String, Integer> abkrdd = sc.parallelizePairs(abk, 3);
+        abkrdd.mapPartitionsWithIndex(
+                (s, v) -> {
+                    List<String> li = new ArrayList<>();
+                    while (v.hasNext()) {
+                        li.add("data：" + v.next() + " in " + (s + 1) + " " + " partition");
+                    }
+                    return li.iterator();
+                }, true).foreach(m -> System.out.println(m));
+        JavaPairRDD<String, Integer> abkrdd2 = abkrdd.aggregateByKey(
+                0,
+                (s, v) -> Math.max(s, v),
+                (s, v) -> s + v
+                );
+        
+        abkrdd2.foreach(s -> System.out.println("c:" + s._1 + ",v:" + s._2));
+        
+        
+    }
+    
 }
