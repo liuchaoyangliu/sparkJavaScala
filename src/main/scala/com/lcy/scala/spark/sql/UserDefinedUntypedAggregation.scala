@@ -49,7 +49,6 @@ object UserDefinedUntypedAggregation {
         def evaluate(buffer: Row): Double = buffer.getLong(0).toDouble / buffer.getLong(1)
     }
 
-    // $example off:untyped_custom_aggregation$
 
     def main(args: Array[String]): Unit = {
         val spark = SparkSession
@@ -57,7 +56,6 @@ object UserDefinedUntypedAggregation {
                 .appName("Spark SQL user-defined DataFrames aggregation example")
                 .getOrCreate()
 
-        // $example on:untyped_custom_aggregation$
         // Register the function to access it
         spark.udf.register("myAverage", MyAverage)
 
@@ -80,7 +78,6 @@ object UserDefinedUntypedAggregation {
         // +--------------+
         // |        3750.0|
         // +--------------+
-        // $example off:untyped_custom_aggregation$
 
         spark.stop()
     }

@@ -3,11 +3,12 @@ package com.lcy.scala.spark.sql
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.sql.SparkSession
 
-// One method for defining the schema of an RDD is to make a case class with the desired column
-// names and types.
-case class Record(key: Int, value: String)
+//定义RDD模式的一种方法是使用所需的列制作案例类名称和类型。
 
 object RDDRelation {
+
+    case class Record(key: Int, value: String)
+
     def main(args: Array[String]) {
         val spark = SparkSession
                 .builder

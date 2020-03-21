@@ -1,9 +1,12 @@
-package com.lcy.scala.spark.sql
+package com.lcy.scala.spark.demo.sql
+
 
 import org.apache.spark.sql.{Encoder, Encoders, SparkSession}
 import org.apache.spark.sql.expressions.Aggregator
 
+
 object UserDefinedTypedAggregation {
+
 
     case class Employee(name: String, salary: Long)
 
@@ -47,6 +50,7 @@ object UserDefinedTypedAggregation {
 
         import spark.implicits._
 
+
         val ds = spark.read.json("examples/src/main/resources/employees.json").as[Employee]
         ds.show()
         // +-------+------+
@@ -68,8 +72,8 @@ object UserDefinedTypedAggregation {
         // |        3750.0|
         // +--------------+
 
-        spark.stop()
 
+        spark.stop()
     }
 
 }

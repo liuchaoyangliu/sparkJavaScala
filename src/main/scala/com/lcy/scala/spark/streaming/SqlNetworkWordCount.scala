@@ -59,25 +59,30 @@ object SqlNetworkWordCount {
         ssc.start()
         ssc.awaitTermination()
     }
-}
 
 
-/** Case class for converting RDD to DataFrame */
-case class Record(word: String)
+
+    /** Case class for converting RDD to DataFrame */
+    case class Record(word: String)
 
 
-/** Lazily instantiated singleton instance of SparkSession */
-object SparkSessionSingleton {
+    /** Lazily instantiated singleton instance of SparkSession */
+    object SparkSessionSingleton {
 
-    @transient private var instance: SparkSession = _
+        @transient private var instance: SparkSession = _
 
-    def getInstance(sparkConf: SparkConf): SparkSession = {
-        if (instance == null) {
-            instance = SparkSession
-                    .builder
-                    .config(sparkConf)
-                    .getOrCreate()
+        def getInstance(sparkConf: SparkConf): SparkSession = {
+            if (instance == null) {
+                instance = SparkSession
+                        .builder
+                        .config(sparkConf)
+                        .getOrCreate()
+            }
+            instance
         }
-        instance
     }
+
+
 }
+
+
